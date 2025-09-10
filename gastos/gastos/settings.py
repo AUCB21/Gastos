@@ -13,7 +13,13 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '*',  # Keep this for development flexibility
+    'gastos-lt96.onrender.com',  # Your Render domain
+    '100.20.92.101',  # Render IP addresses
+    '44.225.181.72',
+    '44.227.217.144',
+]
 
 # Port configuration for Render
 PORT = os.getenv('PORT', '8000')
