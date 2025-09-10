@@ -1,0 +1,20 @@
+databases:
+  - name: gastos-db
+    databaseName: gastos_db
+    user: gastos_user
+
+services:
+  - type: web
+    name: gastos-backend
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "./start.sh"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gastos-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
