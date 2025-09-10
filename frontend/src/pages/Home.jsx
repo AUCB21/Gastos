@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import GastoForm from "../components/forms/GastoForm"; 
 import api from "../api"; 
 import Gasto from "../components/Gasto";
 import { ACCESS_TOKEN } from "../constants";
 
+
+
 const Home = () => {
   const [gastos, setGastos] = useState([]);
+  const navigate = useNavigate();
 
   // useEffect hook to fetch gastos on component mount
   useEffect(() => {
@@ -85,9 +89,23 @@ const Home = () => {
   //     }}
   // }
 
+  const handleLogout = () => {
+    navigate("/logout");
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen py-10 font-sans">
       <div className="container mx-auto px-4">
+        {/* Logout button */}
+        <div className="flex justify-end mb-4">
+          <button 
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+        
         {/* Here's how you call the new GastoForm component */}
         {/* We pass the handleCreateGasto function as a prop named "onGastoCreated" */}
         <GastoForm onGastoCreated={handleCreateGasto} />
