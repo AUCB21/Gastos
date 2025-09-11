@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 class MedioPago(models.Model):
     id: int = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medios_pago', default=1)
     ente_emisor: str = models.CharField(max_length=100)
     tipo: str = models.CharField(max_length=8)
     extra: str = models.CharField(max_length=64, blank=True)
@@ -33,6 +34,7 @@ class Gasto(models.Model):
     )
 
     id: int = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='gastos', default=1)
     monto: float = models.FloatField()
     moneda: str = models.CharField(max_length=3, choices=MONEDAS_CHOICES, default='ARS')
     pagos_realizados: int = models.IntegerField()

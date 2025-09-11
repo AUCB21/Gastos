@@ -28,38 +28,51 @@ class GastoListCreate(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Pendiente: Implementar filtrados multiples (usuario, fecha, medio de pago, etc.)
-        return Gasto.objects.all()
+        # Return only gastos for the authenticated user
+        return Gasto.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
-        # Validation is automatically handled by DRF before this method is called
-        serializer.save()
+        # Automatically set the user to the authenticated user
+        serializer.save(user=self.request.user)
 
 class GastoDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint - Obtiene, actualiza o elimina un gasto específico
     """
-    queryset = Gasto.objects.all()
     serializer_class = GastoSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
+
+    def get_queryset(self):
+        # Return only gastos for the authenticated user
+        return Gasto.objects.filter(user=self.request.user)
 
 class MedioPagoListCreate(generics.ListCreateAPIView):
     """
     API endpoint - Lista y crea medios de pago
     """
-    queryset = MedioPago.objects.all()
     serializer_class = MedioPagoSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return only medios de pago for the authenticated user
+        return MedioPago.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        # Automatically set the user to the authenticated user
+        serializer.save(user=self.request.user)
 
 class MedioPagoDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint - Obtiene, actualiza o elimina un medio de pago específico
     """
-    queryset = MedioPago.objects.all()
     serializer_class = MedioPagoSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
+
+    def get_queryset(self):
+        # Return only medios de pago for the authenticated user
+        return MedioPago.objects.filter(user=self.request.user)
 
 
 @api_view(['GET'])
