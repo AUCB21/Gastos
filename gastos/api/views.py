@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -13,8 +13,8 @@ URL_DOLARAPI = 'https://dolarapi.com/v1/dolares'
 
 
 class CreateUserView(generics.CreateAPIView):
-    """
-    API endpoint - Crea un nuevo usuario
+    """git 
+    API endpoint - Crea un nuevo usuarios
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
