@@ -5,9 +5,11 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 import LoadingIndicator from "../LoadingIndicator";
 
 
+
 const LoginForm = ({route, method}) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  // const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const navigate = useNavigate();

@@ -14,6 +14,11 @@ const Home = () => {
   const { user } = useUserData(); // Use the custom hook
   const navigate = useNavigate();
 
+  // Debug logging for user data
+  useEffect(() => {
+    console.log("🏠 Home component - Current user:", user);
+  }, [user]);
+
   // useEffect hook to fetch gastos on component mount
   useEffect(() => {
     getGastos();

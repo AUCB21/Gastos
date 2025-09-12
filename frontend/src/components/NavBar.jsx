@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
-const NavBar = ( { user } ) => {
+const NavBar = ( { user, logout } ) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Debug logging for user prop
+  useEffect(() => {
+    console.log("🔸 NavBar component - Received user prop:", user);
+  }, [user]);
 
   // Detect system theme preference
   useEffect(() => {
@@ -110,9 +115,12 @@ const NavBar = ( { user } ) => {
                       lorem
                     </a>
                     <hr className="my-1 border-gray-200 dark:border-gray-600" />
-                    <a href='/logout' className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <button 
+                      onClick={logout} 
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
                       Sign Out
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>
@@ -174,11 +182,11 @@ const NavBar = ( { user } ) => {
         </div>
 
         {/* Theme indicator for demo */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-200 dark:border-blue-800 px-4 py-2 fade-out">
+        {/* <div className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-200 dark:border-blue-800 px-4 py-2 fade-out">
           <p className="text-xs text-blue-600 dark:text-blue-400 text-center">
             Current theme: {isDarkMode ? 'Dark Mode' : 'Light Mode'} (automatically detected from system)
           </p>
-        </div>
+        </div> */}
       </nav>
     </div>
   );
