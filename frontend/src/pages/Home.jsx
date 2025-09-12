@@ -4,11 +4,14 @@ import GastoForm from "../components/forms/GastoForm";
 import api from "../api"; 
 import Gasto from "../components/Gasto";
 import { ACCESS_TOKEN } from "../constants";
+import NavBar from "../components/NavBar";
+import { useUserData } from "../hooks/useUserData";
 
 
 
 const Home = () => {
   const [gastos, setGastos] = useState([]);
+  const { user } = useUserData(); // Use the custom hook
   const navigate = useNavigate();
 
   // useEffect hook to fetch gastos on component mount
@@ -94,21 +97,26 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen py-10 font-sans">
-      <div className="container mx-auto px-4">
-        {/* Logout button */}
-        <div className="flex justify-end mb-4">
-          <button 
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors"
-          >
-            Logout
-          </button>
-        </div>
-        
-        {/* Here's how you call the new GastoForm component */}
-        {/* We pass the handleCreateGasto function as a prop named "onGastoCreated" */}
-        <GastoForm onGastoCreated={handleCreateGasto} />
+    <>
+      {/* Navigation Bar */}
+      <NavBar user={user} logout={handleLogout} />
+      
+      {/* Main Content */}
+      <div className="bg-gray-100 min-h-screen py-10 font-sans">
+        <div className="container mx-auto px-4">
+          {/* Logout button */}
+          <div className="flex justify-end mb-4">
+            <button 
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+          
+          {/* Here's how you call the new GastoForm component */}
+          {/* We pass the handleCreateGasto function as a prop named "onGastoCreated" */}
+          <GastoForm onGastoCreated={handleCreateGasto} />
 
         <h2 className="text-3xl font-bold text-center text-gray-800 mt-10 mb-6">Lista de Gastos</h2>
         <div className="space-y-4">
@@ -126,6 +134,7 @@ const Home = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

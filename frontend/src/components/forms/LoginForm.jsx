@@ -40,7 +40,7 @@ const LoginForm = ({route, method}) => {
     <div className="min-h-screen flex items-center justify-center w-full dark:bg-gray-950">
       <div className="bg-white dark:bg-gray-900 shadow-md rounded-lg px-8 py-6 max-w-md">
         <h1 className="text-2xl font-bold text-center mb-4 dark:text-gray-200">
-          ¡Bienvenido!
+          {type}
         </h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -111,6 +111,7 @@ const LoginForm = ({route, method}) => {
             disabled={loading}
           >
             {loading ? "Cargando..." : type}
+            
           </button>
         </form>
       </div>

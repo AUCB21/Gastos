@@ -20,6 +20,23 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_current_user(request):
+    """
+    API endpoint - Obtiene los datos del usuario autenticado
+    """
+    user = request.user
+    user_data = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'date_joined': user.date_joined,
+    }
+    return Response(user_data, status=status.HTTP_200_OK)
+
 class GastoListCreate(generics.ListCreateAPIView):
     """
     API endpoint - Lista y crea gastos
