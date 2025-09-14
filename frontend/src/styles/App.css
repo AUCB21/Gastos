@@ -1,1 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
 @import "tailwindcss";
+
+/* Apply fonts globally to ALL elements */
+*, *::before, *::after {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Specific elements that might need explicit font setting */
+body, html {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Headings use Mulish */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Mulish", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Form elements (buttons, inputs, selects, etc.) */
+button, input, select, textarea, label {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Additional UI elements */
+div, span, p, a, li, td, th {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
