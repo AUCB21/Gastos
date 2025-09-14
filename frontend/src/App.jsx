@@ -4,7 +4,9 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Home from "./pages/Home"
 import GastoPage from "./pages/Gasto"
+import GastosList from "./pages/GastosList"
 import MediosPagoPage from "./pages/MediosPago"
+import MediosPagoList from "./pages/MediosPagoList"
 import NotFound from "./pages/NotFound"
 import ProtectedRoute from './components/ProtectedRoute'
 import api from './api'
@@ -48,7 +50,9 @@ function App() {
           <Routes>
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/gastos" element={<ProtectedRoute><GastoPage /></ProtectedRoute>} />
-            <Route path="/medios_pago" element={<ProtectedRoute><MediosPagoPage /></ProtectedRoute>} />
+            <Route path="/gastos/list" element={<ProtectedRoute><GastosList /></ProtectedRoute>} />
+            <Route path="/medios-pago" element={<ProtectedRoute><MediosPagoPage /></ProtectedRoute>} />
+            <Route path="/medios-pago/list" element={<ProtectedRoute><MediosPagoList /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegAndLogout />} />
             <Route path="/logout" element={<Logout />} />

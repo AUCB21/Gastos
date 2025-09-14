@@ -1,48 +1,22 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import GastoForm from "../components/forms/GastoForm"; 
 import api from "../api"; 
-import Gasto from "../components/Gasto";
 import { ACCESS_TOKEN } from "../constants";
 import NavBar from "../components/NavBar";
 import { useUserData } from "../hooks/useUserData";
 
 const GastoPage = () => {
-  const [gastos, setGastos] = useState([]);
-  const { user } = useUserData(); // Use the custom hook
+  const { user } = useUserData();
   const navigate = useNavigate();
-
-  // useEffect hook to fetch gastos on component mount
-  useEffect(() => {
-    getGastos();
-  }, []);
-
-  const getGastos = async () => {
-    try {
-      const response = await api.get("/api/gastos/"); // Added trailing slash for consistency
-      setGastos(response.data);
-      // console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching gastos:", error);
-    }
-  };
-
-  const deleteGasto = async (id) => {
-    try {
-      const res = await api.delete(`/api/gastos/${id}/`);
-      if (res.status === 204) getGastos();
-    } catch (error) {
-      console.error("Error deleting gasto:", error);
-      alert(`Error: ${error.message}`);
-    }
-  };
 
   const handleCreateGasto = async (formData) => {
     try {
       const token = localStorage.getItem(ACCESS_TOKEN);
       console.log("Current token:", token ? "Present" : "Missing");
       const response = await api.post("/api/gastos/", formData);
-      if (response.status === 201) getGastos(); // Refresh the list to show the new expense
+      if (response.status === 201) {
+        alert("Gasto creado exitosamente.");
+      }
     } catch (error) {
       console.error("Error creating gasto:", error);
       console.error("Error status:", error.response?.status);
@@ -72,12 +46,6 @@ const GastoPage = () => {
     }
   };
 
-  const handleEditGasto = (id) => {
-    // TODO: Implement edit functionality
-    console.log("Edit gasto with ID:", id);
-    alert("Edit functionality not implemented yet");
-  };
-
   const handleLogout = () => {
     navigate("/logout");
   };
@@ -91,28 +59,11 @@ const GastoPage = () => {
       <div className="bg-gray-100 min-h-screen py-10 font-sans">
         <div className="container mx-auto px-4">
           {/* Page Title */}
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Gestión de Gastos</h1>
+          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Crear Nuevo Gasto</h1>
           
           {/* Gasto Form */}
           <div className="mb-10">
             <GastoForm onGastoCreated={handleCreateGasto} />
-          </div>
-
-          {/* Gastos List */}
-          <h2 className="text-3xl font-bold text-center text-gray-800 mt-10 mb-6">Lista de Gastos</h2>
-          <div className="space-y-4">
-            {gastos.length > 0 ? (
-              gastos.map((gasto) => (
-                <Gasto
-                  key={gasto.id}
-                  gasto={gasto}
-                  onDelete={() => deleteGasto(gasto.id)}
-                  onEdit={() => handleEditGasto(gasto.id)}
-                />
-              ))
-            ) : (
-              <p className="text-center text-gray-500">No hay gastos para mostrar.</p>
-            )}
           </div>
         </div>
       </div>

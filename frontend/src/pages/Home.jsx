@@ -14,11 +14,6 @@ const Home = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 
-  // Debug logging for user data
-  useEffect(() => {
-    console.log("🏠 Home component - Current user:", user);
-  }, [user]);
-
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -104,7 +99,7 @@ const Home = () => {
           {/* Quick Actions */}
           <div className="bg-white p-6 rounded-xl shadow-lg mb-10">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Acciones Rápidas</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
                 onClick={() => navigate("/gastos")}
                 className="bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center space-x-2"
@@ -112,17 +107,37 @@ const Home = () => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                <span>Gestionar Gastos</span>
+                <span>Crear Gasto</span>
               </button>
               
               <button
-                onClick={() => navigate("/medios_pago")}
+                onClick={() => navigate("/gastos/list")}
+                className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center space-x-2"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+                <span>Ver Gastos</span>
+              </button>
+              
+              <button
+                onClick={() => navigate("/medios-pago")}
                 className="bg-green-500 text-white p-4 rounded-lg hover:bg-green-600 transition duration-200 flex items-center justify-center space-x-2"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                <span>Gestionar Medios de Pago</span>
+                <span>Crear Medio de Pago</span>
+              </button>
+
+              <button
+                onClick={() => navigate("/medios-pago/list")}
+                className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center space-x-2"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+                <span>Ver Medios de Pago</span>
               </button>
             </div>
           </div>
