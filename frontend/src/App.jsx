@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Home from "./pages/Home"
+import GastoPage from "./pages/Gasto"
+import MediosPagoPage from "./pages/MediosPago"
 import NotFound from "./pages/NotFound"
 import ProtectedRoute from './components/ProtectedRoute'
 import api from './api'
@@ -25,7 +27,7 @@ const Logout = () => {
       // Small delay to ensure cleanup is complete
       setTimeout(() => {
         window.location.href = '/login';
-      }, 100);
+      }, 500);
     };
     
     handleLogout();
@@ -45,6 +47,8 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/gastos" element={<ProtectedRoute><GastoPage /></ProtectedRoute>} />
+            <Route path="/medios_pago" element={<ProtectedRoute><MediosPagoPage /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegAndLogout />} />
             <Route path="/logout" element={<Logout />} />
