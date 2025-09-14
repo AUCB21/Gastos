@@ -117,7 +117,7 @@ const GastoForm = ({ onGastoCreated }) => {
             value={formData.monto}
             onChange={handleInputChange}
             placeholder="Monto"
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
             required
           />
         </div>
@@ -127,7 +127,7 @@ const GastoForm = ({ onGastoCreated }) => {
             name="moneda"
             value={formData.moneda}
             onChange={handleInputChange}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
             required
           >
             <option value="">Selecciona una moneda</option>
@@ -145,32 +145,32 @@ const GastoForm = ({ onGastoCreated }) => {
             name="fecha_gasto"
             value={formData.fecha_gasto}
             onChange={handleInputChange}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
             required
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="pagos_realizados" className="text-sm font-medium text-gray-600">Pagos Realizados</label>
+          <label htmlFor="pagos_realizados" className="text-sm font-medium text-gray-600">Cuotas Pagadas</label>
           <input
             type="number"
             name="pagos_realizados"
             value={formData.pagos_realizados}
             onChange={handleInputChange}
             placeholder="Pagos realizados"
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
             min="0"
             required
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="pagos_totales" className="text-sm font-medium text-gray-600">Pagos Totales</label>
+          <label htmlFor="pagos_totales" className="text-sm font-medium text-gray-600">Cuotas Totales</label>
           <input
             type="number"
             name="pagos_totales"
             value={formData.pagos_totales}
             onChange={handleInputChange}
             placeholder="Pagos totales"
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
             min="1"
             required
           />
@@ -181,7 +181,7 @@ const GastoForm = ({ onGastoCreated }) => {
             name="medio_pago"
             value={formData.medio_pago}
             onChange={handleInputChange}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
             required
           >
             <option value="">Selecciona un medio de pago</option>
@@ -200,7 +200,7 @@ const GastoForm = ({ onGastoCreated }) => {
             value={formData.vendedor}
             onChange={handleInputChange}
             placeholder="Vendedor"
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
           />
         </div>
         <div className="flex flex-col">
@@ -209,7 +209,7 @@ const GastoForm = ({ onGastoCreated }) => {
             name="categoria"
             value={formData.categoria}
             onChange={handleInputChange}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
             required
           >
             <option value="">Selecciona una categoría</option>
@@ -228,16 +228,16 @@ const GastoForm = ({ onGastoCreated }) => {
             value={formData.comentarios}
             onChange={handleInputChange}
             placeholder="Comentarios"
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
           />
         </div>
         <div className="text-center">
           <button
             type="submit"
-            className="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-400 text-white font-bold py-2 px-4 rounded-md hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            {loading ? "Creando..." : "Crear Gasto"}
+            {loading ? "Creando..." : "Crear"}
           </button>
         </div>
       </form>
