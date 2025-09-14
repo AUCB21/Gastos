@@ -26,9 +26,9 @@ const NavBar = ( { user } ) => {
               {/* Triangle Logo */}
               <div className="flex items-center space-x-2">
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1" onClick={() => window.location.href = '/'}>
                   <span className="font-semibold text-gray-900 dark:text-white text-sm bg-gray-50 dark:bg-gray-800 rounded-md px-2 py-1">
-                    Tus gastos: {user?.username || 'Guest'}
+                    Inicio
                   </span>
               </div>
 
