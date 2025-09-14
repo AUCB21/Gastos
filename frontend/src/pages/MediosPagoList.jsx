@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import NavBar from "../components/NavBar";
 import { useUserData } from "../hooks/useUserData";
+import delayedNavigate from "../hooks/delayedNavigate";
 
 const MediosPagoList = () => {
   const [mediosPago, setMediosPago] = useState([]);
@@ -99,7 +100,7 @@ const MediosPagoList = () => {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold text-gray-800">Lista de Medios de Pago</h1>
             <button
-              onClick={() => navigate("/medios-pago/add")}
+              onClick={() => delayedNavigate(navigate, "/medios-pago/add", 250)}
               className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-200 flex items-center space-x-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +189,7 @@ const MediosPagoList = () => {
                 <div className="text-center py-20">
                   <p className="text-gray-500 mb-4">No hay medios de pago para mostrar.</p>
                   <button
-                    onClick={() => navigate("/medios-pago/add")}
+                    onClick={() => delayedNavigate(navigate, "/medios-pago/add", 250)}
                     className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition duration-200"
                   >
                     Crear tu primer medio de pago

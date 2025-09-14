@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api";
+import { getTodayDate } from "../../utils/dateUtils";
 
 // Currency enum
 const MONEDAS = {
@@ -20,12 +21,6 @@ const CATEGORIAS = {
 };
 
 const GastoForm = ({ onGastoCreated }) => {
-  // Helper function to get today's date in YYYY-MM-DD format
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
   // Use a single state object to manage all form data
   const [formData, setFormData] = useState({
     monto: "",

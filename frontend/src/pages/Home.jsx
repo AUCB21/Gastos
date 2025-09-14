@@ -4,6 +4,8 @@ import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
 import NavBar from "../components/NavBar";
 import { useUserData } from "../hooks/useUserData";
+import delayedNavigate from "../hooks/delayedNavigate";
+import { formatLocalDate } from "../utils/dateUtils";
 
 const Home = () => {
   const [stats, setStats] = useState({
@@ -101,7 +103,7 @@ const Home = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Acciones Rápidas</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
-                onClick={() => navigate("/gastos/add")}
+                onClick={() => delayedNavigate(navigate, "/gastos/add", 500)}
                 className="bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center space-x-2"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +113,7 @@ const Home = () => {
               </button>
               
               <button
-                onClick={() => navigate("/gastos")}
+                onClick={() => delayedNavigate(navigate, "/gastos", 500)}
                 className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center space-x-2"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +123,7 @@ const Home = () => {
               </button>
               
               <button
-                onClick={() => navigate("/medios-pago/add")}
+                onClick={() => delayedNavigate(navigate, "/medios-pago/add", 500)}
                 className="bg-green-500 text-white p-4 rounded-lg hover:bg-green-600 transition duration-200 flex items-center justify-center space-x-2"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +133,7 @@ const Home = () => {
               </button>
 
               <button
-                onClick={() => navigate("/medios-pago")}
+                onClick={() => delayedNavigate(navigate, "/medios-pago", 500)}
                 className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center space-x-2"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +156,7 @@ const Home = () => {
                         ${gasto.monto} {gasto.moneda} - {gasto.vendedor}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {new Date(gasto.fecha_gasto).toLocaleDateString("es-AR")}
+                        {formatLocalDate(gasto.fecha_gasto)}
                       </p>
                     </div>
                     <span className="text-sm text-gray-500">
@@ -165,7 +167,7 @@ const Home = () => {
               </div>
               <div className="mt-4 text-center">
                 <button
-                  onClick={() => navigate("/gastos")}
+                  onClick={() => delayedNavigate(navigate, "/gastos", 500)}
                   className="text-blue-600 hover:text-blue-800 font-medium"
                 >
                   Ver todos los gastos →
