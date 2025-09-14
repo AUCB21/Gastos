@@ -1,7 +1,9 @@
 import React from "react";
+import { formatLocalDate } from "../utils/dateUtils";
 
 const Gasto = ({ gasto, onDelete, onEdit }) => {
-    const formattedDate = new Date(gasto.fecha_gasto).toLocaleDateString("es-AR");
+    // Fix timezone issue: parse date in local timezone instead of UTC
+    const formattedDate = formatLocalDate(gasto.fecha_gasto);
 
   return (
     <div
@@ -15,7 +17,8 @@ const Gasto = ({ gasto, onDelete, onEdit }) => {
         </p>
         {/* <p className="text-gray-500">Moneda: {gasto.moneda}</p> */}
         <p className="text-gray-500">Categoría: {gasto.categoria.name || gasto.categoria}</p>
-        {/* <p className="text-gray-500">Vendedor: {gasto.vendedor}</p> */}
+        <p className="text-gray-500">Vendedor: {gasto.vendedor}</p>
+        <p className="text-gray-500">Comentarios: {gasto?.comentarios || ''}</p>
         <p className="text-gray-500">Fecha: {formattedDate}</p>
       </div>
       <button
