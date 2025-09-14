@@ -13,7 +13,7 @@ const MediosPagoPage = () => {
     try {
       const token = localStorage.getItem(ACCESS_TOKEN);
       console.log("Current token:", token ? "Present" : "Missing");
-      const response = await api.post("/api/medios_pago/", formData);
+      const response = await api.post("/api/medios-pago/", formData);
       if (response.status === 201) {
         alert("Medio de Pago creado exitosamente.");
       }

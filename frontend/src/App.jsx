@@ -49,10 +49,10 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/gastos" element={<ProtectedRoute><GastoPage /></ProtectedRoute>} />
-            <Route path="/gastos/list" element={<ProtectedRoute><GastosList /></ProtectedRoute>} />
-            <Route path="/medios-pago" element={<ProtectedRoute><MediosPagoPage /></ProtectedRoute>} />
-            <Route path="/medios-pago/list" element={<ProtectedRoute><MediosPagoList /></ProtectedRoute>} />
+            <Route path="/gastos" element={<ProtectedRoute><GastosList /></ProtectedRoute>} />
+            <Route path="/gastos/add" element={<ProtectedRoute><GastoPage /></ProtectedRoute>} />
+            <Route path="/medios-pago" element={<ProtectedRoute><MediosPagoList /></ProtectedRoute>} />
+            <Route path="/medios-pago/add" element={<ProtectedRoute><MediosPagoPage /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegAndLogout />} />
             <Route path="/logout" element={<Logout />} />

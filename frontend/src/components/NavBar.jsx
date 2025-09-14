@@ -39,7 +39,7 @@ const NavBar = ( { user, logout } ) => {
 
               {/* Navigation Links */}
               <div className="hidden md:flex items-center space-x-6 ml-8">
-                <a href="/mediosPago" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors">
+                <a href="/medios-pago" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors">
                   Medios de Pago
                 </a>
                 <a href="/gastos" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors">
@@ -109,9 +109,9 @@ const NavBar = ( { user, logout } ) => {
                     <hr className="my-1 border-gray-200 dark:border-gray-600" />
                     <button 
                       onClick={logout} 
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      className="block w-full text-left px-4 py-2 text-sm text-red-500 underline dark:text-gray-300 hover:bg-red-500 hover:text-white dark:hover:bg-gray-700 transition-colors"
                     >
-                      Sign Out
+                      Cerrar Sesion
                     </button>
                   </div>
                 )}

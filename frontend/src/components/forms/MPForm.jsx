@@ -55,7 +55,7 @@ const MPForm = ({ onMPCreated }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Crear Nuevo Medio de Pago</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Medio de Pago</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col">
           <label htmlFor="ente_emisor" className="text-sm font-medium text-gray-600">Entidad Emisora</label>
