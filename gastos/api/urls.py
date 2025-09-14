@@ -5,6 +5,9 @@ urlpatterns = [
     # Authentication
     path('logout/', views.logout_view, name='logout'),
     
+    # User data
+    path('user/', views.get_current_user, name='current_user'),
+    
     # Currency exchange rates
     path('cotizacion/', views.get_cotizacion, name='cotizacion'),
     
