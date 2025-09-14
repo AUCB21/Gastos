@@ -14,11 +14,6 @@ const Home = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 
-  // Debug logging for user data
-  useEffect(() => {
-    console.log("🏠 Home component - Current user:", user);
-  }, [user]);
-
   useEffect(() => {
     loadDashboardData();
   }, []);
