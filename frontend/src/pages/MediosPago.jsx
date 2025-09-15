@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import MPForm from "../components/forms/MPForm"; 
 import api from "../api"; 
 import { ACCESS_TOKEN } from "../constants";
-import NavBar from "../components/NavBar";
+import LayoutWrapper from "../components/wrappers/LayoutWrapper";
 import { useUserData } from "../hooks/useUserData";
 
 const MediosPagoPage = () => {
@@ -51,23 +51,17 @@ const MediosPagoPage = () => {
   };
 
   return (
-    <>
-      {/* Navigation Bar */}
-      <NavBar user={user} logout={handleLogout} />
-      
-      {/* Main Content */}
-      <div className="bg-gray-100 min-h-screen py-10 font-sans">
-        <div className="container mx-auto px-4">
-          {/* Page Title */}
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Crear Nuevo Medio de Pago</h1>
-          
-          {/* MedioPago Form */}
-          <div className="mb-10">
-            <MPForm onMPCreated={handleCreateMedioPago} />
-          </div>
+    <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false}>
+      <div className="max-w-2xl mx-auto">
+        {/* Page Title */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Crear Nuevo Medio de Pago</h1>
+        
+        {/* MedioPago Form */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <MPForm onMPCreated={handleCreateMedioPago} />
         </div>
       </div>
-    </>
+    </LayoutWrapper>
   );
 };
 

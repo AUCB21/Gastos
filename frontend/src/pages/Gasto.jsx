@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import GastoForm from "../components/forms/GastoForm"; 
 import api from "../api"; 
 import { ACCESS_TOKEN } from "../constants";
-import NavBar from "../components/NavBar";
+import LayoutWrapper from "../components/wrappers/LayoutWrapper";
 import { useUserData } from "../hooks/useUserData";
 
 const GastoPage = () => {
@@ -51,23 +51,17 @@ const GastoPage = () => {
   };
 
   return (
-    <>
-      {/* Navigation Bar */}
-      <NavBar user={user} logout={handleLogout} />
-      
-      {/* Main Content */}
-      <div className="bg-gray-100 min-h-screen py-10 font-sans">
-        <div className="container mx-auto px-4">
-          {/* Page Title */}
-          {/* <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Crear Nuevo Gasto</h1> */}
-          
-          {/* Gasto Form */}
-          <div className="mb-10">
-            <GastoForm onGastoCreated={handleCreateGasto} />
-          </div>
+    <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false}>
+      <div className="max-w-2xl mx-auto">
+        {/* Page Title */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Crear Nuevo Gasto</h1>
+        
+        {/* Gasto Form */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <GastoForm onGastoCreated={handleCreateGasto} />
         </div>
       </div>
-    </>
+    </LayoutWrapper>
   );
 };
 

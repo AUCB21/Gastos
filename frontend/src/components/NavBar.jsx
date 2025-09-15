@@ -7,7 +7,7 @@ const NavBar = ( { user, logout } ) => {
 
   // Debug logging for user prop
   useEffect(() => {
-    console.log("🔸 NavBar component - Received user prop:", user);
+    // console.log("🔸 NavBar component - Received user prop:", user);
   }, [user]);
 
   // Detect system theme preference
