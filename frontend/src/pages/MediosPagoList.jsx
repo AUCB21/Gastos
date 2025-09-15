@@ -78,7 +78,7 @@ const MediosPagoList = () => {
       .sort()
       .forEach((key) => {
         sortedGrouped[key] = grouped[key].sort((a, b) =>
-          a.ente_emisor.localeCompare(b.ente_emisor)
+          (a.ente_emisor || '').localeCompare(b.ente_emisor || '')
         );
       });
 
