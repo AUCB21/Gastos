@@ -64,7 +64,10 @@ const Home = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-lg">
+          <div 
+            className="bg-white p-6 rounded-xl shadow-lg hover:cursor-pointer"
+            onClick={() => delayedNavigate(navigate, "/gastos", 200)}
+            >
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-700">Tus Gastos</h3>
@@ -78,7 +81,10 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-lg">
+          <div 
+            className="bg-white p-6 rounded-xl shadow-lg hover:cursor-pointer"
+            onClick={() => delayedNavigate(navigate, "/medios-pago", 200)}
+            >
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-700">Tus Medios de Pago</h3>

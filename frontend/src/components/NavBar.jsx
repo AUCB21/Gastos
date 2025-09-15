@@ -1,14 +1,180 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const NavBar = ( { user, logout } ) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [totalMatches, setTotalMatches] = useState(0);
 
-  // Debug logging for user prop
+  
+
+  // Clear previous highlights
+  const clearHighlights = useCallback(() => {
+    const highlights = document.querySelectorAll('.search-highlight');
+    highlights.forEach(highlight => {
+      const parent = highlight.parentNode;
+      parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+      parent.normalize();
+    });
+  }, []);
+
+  // Highlight text function
+  const highlightText = useCallback((searchText) => {
+    if (!searchText.trim()) {
+      clearHighlights();
+      setTotalMatches(0);
+      setCurrentMatchIndex(0);
+      return [];
+    }
+
+    clearHighlights();
+    
+    const walker = document.createTreeWalker(
+      document.querySelector('main') || document.body,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function(node) {
+          // Skip script and style elements
+          if (node.parentNode.tagName === 'SCRIPT' || 
+              node.parentNode.tagName === 'STYLE' ||
+              node.parentNode.tagName === 'NOSCRIPT') {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+
+    const textNodes = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      textNodes.push(node);
+    }
+
+    const matchElements = [];
+    const regex = new RegExp(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+
+    textNodes.forEach(textNode => {
+      const text = textNode.textContent;
+      const matches = [...text.matchAll(regex)];
+      
+      if (matches.length > 0) {
+        const parent = textNode.parentNode;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+
+        matches.forEach((match) => {
+          // Add text before match
+          if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+          }
+
+          // Create highlight element
+          const highlight = document.createElement('span');
+          highlight.className = 'search-highlight bg-yellow-300 dark:bg-yellow-600 text-black dark:text-white font-semibold rounded px-1';
+          highlight.textContent = match[0];
+          highlight.setAttribute('data-search-index', matchElements.length);
+          fragment.appendChild(highlight);
+          matchElements.push(highlight);
+
+          lastIndex = match.index + match[0].length;
+        });
+
+        // Add remaining text
+        if (lastIndex < text.length) {
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+
+        parent.replaceChild(fragment, textNode);
+      }
+    });
+
+    setTotalMatches(matchElements.length);
+    return matchElements;
+  }, [clearHighlights]);
+
+  // Search and navigate function
+  const performSearch = useCallback((searchText, direction = 'next') => {
+    const matches = highlightText(searchText);
+    
+    if (matches.length === 0) {
+      setCurrentMatchIndex(0);
+      return;
+    }
+
+    let newIndex;
+    if (direction === 'next') {
+      newIndex = currentMatchIndex < matches.length - 1 ? currentMatchIndex + 1 : 0;
+    } else {
+      newIndex = currentMatchIndex > 0 ? currentMatchIndex - 1 : matches.length - 1;
+    }
+
+    setCurrentMatchIndex(newIndex);
+
+    // Remove current highlight from all matches
+    matches.forEach(match => {
+      match.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-1');
+    });
+
+    // Highlight current match
+    const currentMatch = matches[newIndex];
+    if (currentMatch) {
+      currentMatch.classList.add('ring-2', 'ring-blue-500', 'ring-offset-1');
+      
+      // Scroll to current match
+      currentMatch.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest'
+      });
+    }
+  }, [highlightText, currentMatchIndex]);
+
+  // Handle search input
+  const handleSearchChange = useCallback((value) => {
+    setSearchTerm(value);
+    setCurrentMatchIndex(0);
+    
+    if (value.trim()) {
+      performSearch(value, 'next');
+    } else {
+      clearHighlights();
+      setTotalMatches(0);
+    }
+  }, [performSearch, clearHighlights]);
+
+  // Handle search navigation
+  const handleSearchNavigation = useCallback((direction) => {
+    if (searchTerm.trim() && totalMatches > 0) {
+      performSearch(searchTerm, direction);
+    }
+  }, [searchTerm, totalMatches, performSearch]);
+
+  // Handle Enter key for search navigation
+  const handleSearchKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        handleSearchNavigation('prev');
+      } else {
+        handleSearchNavigation('next');
+      }
+    } else if (e.key === 'Escape') {
+      setSearchTerm('');
+      clearHighlights();
+      setTotalMatches(0);
+      setCurrentMatchIndex(0);
+    }
+  }, [handleSearchNavigation, clearHighlights]);
+
+  // Clean up highlights when component unmounts
   useEffect(() => {
-    // console.log("🔸 NavBar component - Received user prop:", user);
-  }, [user]);
+    return () => {
+      clearHighlights();
+    };
+  }, [clearHighlights]);
 
   // Detect system theme preference
   useEffect(() => {
@@ -23,7 +189,7 @@ const NavBar = ( { user, logout } ) => {
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
-      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
+      <nav className="bg-white  dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
         <div className="max-w-full mx-auto px-4 relative">
           <div className="flex justify-between items-center h-14">
             {/* Left Section: Triangle Logo + Project Name + Dropdown */}
@@ -54,8 +220,32 @@ const NavBar = ( { user, logout } ) => {
                 <input
                   type="text"
                   placeholder="🔍Buscar..."
-                  className="w-full pl-4 pr-4 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                  className="w-full pl-4 pr-16 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
+                {totalMatches > 0 && (
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {currentMatchIndex + 1}/{totalMatches}
+                    </span>
+                    <button
+                      onClick={() => handleSearchNavigation('prev')}
+                      className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                      title="Previous (Shift+Enter)"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => handleSearchNavigation('next')}
+                      className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                      title="Next (Enter)"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -142,8 +332,32 @@ const NavBar = ( { user, logout } ) => {
                     <input
                       type="text"
                       placeholder="Buscar..."
-                      className="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      value={searchTerm}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      onKeyDown={handleSearchKeyDown}
+                      className="w-full pl-10 pr-16 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                     />
+                    {totalMatches > 0 && (
+                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {currentMatchIndex + 1}/{totalMatches}
+                        </span>
+                        <button
+                          onClick={() => handleSearchNavigation('prev')}
+                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                          title="Previous"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => handleSearchNavigation('next')}
+                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                          title="Next"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
