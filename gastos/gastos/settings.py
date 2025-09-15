@@ -34,11 +34,19 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+# Updated JWT settings for automatic session management
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME":  timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(hours=1),  # Shortened refresh token as well
-    "ROTATE_REFRESH_TOKENS": True,  # Generate new refresh token on each refresh
-    "BLACKLIST_AFTER_ROTATION": True,  # Blacklist old refresh tokens
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),   # Shorter access tokens
+    "REFRESH_TOKEN_LIFETIME": timedelta(hours=24),    # Longer refresh tokens
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    # Include JTI in tokens for tracking
+    "JTI_CLAIM": "jti",
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
 }
 
 
@@ -56,6 +64,7 @@ INSTALLED_APPS = [
     'api'
 ]
 
+# MIDDLEWARE with AutoSessionManagementMiddleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -64,6 +73,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'api.middleware.AutoSessionManagementMiddleware',  # Enhanced session management
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -103,6 +113,10 @@ DATABASES = {
     #     'PORT': os.getenv("DB_PORT"),
     # }
 }
+
+# Database connection optimization for token activity tracking
+if not DEBUG:
+    DATABASES['default']['CONN_MAX_AGE'] = 60  # Keep connections alive for 60 seconds
 
 
 # Password validation
@@ -159,3 +173,42 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "https://gastos-jade.vercel.app",
 ]
+
+# Logging configuration for the middleware
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'session_middleware.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'api.middleware': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+# Session timeout configuration
+SESSION_TIMEOUT_MINUTES = 60  # 1 hour default
