@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { CreditCard, Building, Tag, MessageSquare } from 'lucide-react';
 
 const MPForm = ({ onMPCreated }) => {
   // Use a single state object to manage all form data
@@ -9,6 +10,7 @@ const MPForm = ({ onMPCreated }) => {
     extra: ""
   });
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const tiposTarjeta = [
     { value: "VISA", label: "Visa" },
@@ -16,24 +18,44 @@ const MPForm = ({ onMPCreated }) => {
     { value: "MAESTRO", label: "Maestro" },
     { value: "AMEX", label: "American Express" },
     { value: "OTROS", label: "Otros" }
-  ]
+  ];
 
   // Function to handle changes in any form input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.ente_emisor.trim()) {
+      newErrors.ente_emisor = 'Ingrese la entidad emisora';
+    }
+    if (!formData.tipo) {
+      newErrors.tipo = 'Seleccione un tipo';
+    }
+    if ((formData.tipo === 'TC' || formData.tipo === 'TD') && !formData.tipo_tarjeta) {
+      newErrors.tipo_tarjeta = 'Seleccione el tipo de tarjeta';
+    }
+    
+    return newErrors;
   };
 
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate required fields
-    const requiredFields = ['ente_emisor', 'tipo', 'extra'];
-    const emptyFields = requiredFields.filter(field => !formData[field] || formData[field] === '');
-    
-    if (emptyFields.length > 0) {
-      alert(`Por favor, completa los siguientes campos requeridos: ${emptyFields.join(', ')}`);
+    // Validate form
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
     
@@ -44,8 +66,10 @@ const MPForm = ({ onMPCreated }) => {
       setFormData({
         ente_emisor: "",
         tipo: "",
+        tipo_tarjeta: "",
         extra: ""
       });
+      setErrors({});
     } catch (error) {
       alert(`Error: ${error.message}`);
     } finally {
@@ -54,76 +78,138 @@ const MPForm = ({ onMPCreated }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Medio de Pago</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex flex-col">
-          <label htmlFor="ente_emisor" className="text-sm font-medium text-gray-600">Entidad Emisora</label>
-          <input
-            type="text"
-            name="ente_emisor"
-            value={formData.ente_emisor}
-            onChange={handleInputChange}
-            placeholder="Entidad Emisora"
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
-            required
-          />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="tipo" className="text-sm font-medium text-gray-600">Tipo</label>
-          <select
-            name="tipo"
-            value={formData.tipo}
-            onChange={handleInputChange}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
-            required
-          >
-            <option value="">Selecciona un tipo</option>
-            <option value="TC">Tarjeta de Crédito</option>
-            <option value="TD">Tarjeta de Débito</option>
-            <option value="TR">Transferencia</option>
-            <option value="EF">Efectivo</option>
+    <div className="p-4">
+      <div className="max-w-xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+              <CreditCard className="w-6 h-6 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Crear Medio de Pago</h2>
+            <p className="text-gray-600 text-sm">Complete los campos para agregar un medio de pago</p>
+          </div>
 
-          </select>
-        </div>
+          <div className="space-y-4">
+            {/* Entidad Emisora y Tipo Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Building className="inline w-4 h-4 mr-1" />
+                  Entidad Emisora *
+                </label>
+                <input
+                  type="text"
+                  name="ente_emisor"
+                  value={formData.ente_emisor}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors ${
+                    errors.ente_emisor ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  }`}
+                  placeholder="Banco o entidad"
+                />
+                {errors.ente_emisor && (
+                  <p className="mt-1 text-xs text-red-600">{errors.ente_emisor}</p>
+                )}
+              </div>
 
-        <div className="flex flex-col">
-          <label htmlFor="tipoTarjeta" className="text-sm font-medium text-gray-600">Tipo Tarjeta</label>
-          <select
-            name="tipoTarjeta"
-            value={formData.tipo_tarjeta}
-            onChange={handleInputChange}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
-            required
-          >
-            {tiposTarjeta.map((tipo) => (
-              <option key={tipo.value} value={tipo.value}>{tipo.label}</option>
-            ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Tag className="inline w-4 h-4 mr-1" />
+                  Tipo *
+                </label>
+                <select
+                  name="tipo"
+                  value={formData.tipo}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors ${
+                    errors.tipo ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  }`}
+                >
+                  <option value="">Tipo</option>
+                  <option value="TC">Tarjeta de Crédito</option>
+                  <option value="TD">Tarjeta de Débito</option>
+                  <option value="TR">Transferencia</option>
+                  <option value="EF">Efectivo</option>
+                </select>
+                {errors.tipo && (
+                  <p className="mt-1 text-xs text-red-600">{errors.tipo}</p>
+                )}
+              </div>
+            </div>
 
-          </select>
-        </div>
+            {/* Tipo de Tarjeta - Conditional */}
+            {(formData.tipo === 'TC' || formData.tipo === 'TD') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <CreditCard className="inline w-4 h-4 mr-1" />
+                  Tipo de Tarjeta *
+                </label>
+                <select
+                  name="tipo_tarjeta"
+                  value={formData.tipo_tarjeta}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors ${
+                    errors.tipo_tarjeta ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  }`}
+                >
+                  <option value="">Seleccione marca</option>
+                  {tiposTarjeta.map((tipo) => (
+                    <option key={tipo.value} value={tipo.value}>
+                      {tipo.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.tipo_tarjeta && (
+                  <p className="mt-1 text-xs text-red-600">{errors.tipo_tarjeta}</p>
+                )}
+              </div>
+            )}
 
-        <div className="flex flex-col">
-          <label htmlFor="comentarios" className="text-sm font-medium text-gray-600">Comentarios</label>
-          <input
-            type="text"
-            name="extra"
-            value={formData.extra}
-            onChange={handleInputChange}
-            placeholder="Comentarios"
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 hover:ring-gray-400 transition duration-200"
-          />
+            {/* Comentarios */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <MessageSquare className="inline w-4 h-4 mr-1" />
+                Comentarios
+              </label>
+              <textarea
+                name="extra"
+                value={formData.extra}
+                onChange={handleInputChange}
+                rows={2}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none ${
+                  errors.extra ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                }`}
+                placeholder="Información adicional sobre este medio de pago"
+              />
+              {errors.extra && (
+                <p className="mt-1 text-xs text-red-600">{errors.extra}</p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium py-3 px-4 rounded-lg shadow-md transform transition-all duration-200 hover:scale-105 focus:ring-4 focus:ring-green-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creando...
+                </div>
+              ) : (
+                'Crear Medio de Pago'
+              )}
+            </button>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-4 text-center text-xs text-gray-500">
+            * Campos obligatorios
+          </div>
         </div>
-        <div className="text-center">
-          <button
-            type="submit"
-            className="w-full bg-blue-400 text-white font-bold py-2 px-4 rounded-md hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
-          >
-            {loading ? "Creando..." : "Crear"}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };
