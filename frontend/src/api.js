@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-
 // JWT Access Token interceptor
 api.interceptors.request.use( config => {
     const token = localStorage.getItem(ACCESS_TOKEN);

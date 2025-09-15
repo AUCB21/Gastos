@@ -107,7 +107,7 @@ const LoginForm = ({route, method}) => {
                 Usuario
               </span>
               <input
-                type="text"
+                type="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className={`mt-1 block w-full rounded-xl border px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-blue-500/20 ${

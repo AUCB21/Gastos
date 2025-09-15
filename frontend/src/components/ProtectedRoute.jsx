@@ -40,7 +40,7 @@ const ProtectedRoute = ({ children }) => {
           }
         } else {
           // Token is still valid
-          console.log("🔑 Token is valid");
+          // console.log("🔑 Token is valid");
           setIsAuth(true);
         }
       } catch (error) {
@@ -65,7 +65,7 @@ const ProtectedRoute = ({ children }) => {
 
     window.addEventListener('storage', handleStorageChange);
     auth().catch((error) => {
-      console.error("🔑 Error during authentication:", error);
+      // console.error("🔑 Error during authentication:", error);
       setIsAuth(false);
     });
 
