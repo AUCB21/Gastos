@@ -59,7 +59,7 @@ const GastosList = () => {
           groupKey = gasto.pagos_realizados === gasto.pagos_totales ? "Pagado" : "Pendiente";
           break;
         case "mes": {
-          const fecha = new Date(gasto.fecha);
+          const fecha = new Date(gasto.fecha_gasto);
           groupKey = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
           break;
         }
