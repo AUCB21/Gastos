@@ -59,7 +59,7 @@ const GastoPage = () => {
       <div className="bg-gray-100 min-h-screen py-10 font-sans">
         <div className="container mx-auto px-4">
           {/* Page Title */}
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Crear Nuevo Gasto</h1>
+          {/* <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Crear Nuevo Gasto</h1> */}
           
           {/* Gasto Form */}
           <div className="mb-10">
