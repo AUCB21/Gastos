@@ -28,6 +28,8 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid
+      console.log("🔑 Token expired/invalid, clearing storage and redirecting to login");
+      
       const refreshToken = localStorage.getItem(REFRESH_TOKEN);
       
       if (refreshToken) {
@@ -41,7 +43,11 @@ api.interceptors.response.use(
       
       // Clear all tokens and redirect to login
       localStorage.clear();
-      window.location.href = '/login';
+      
+      // Only redirect if we're not already on login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
