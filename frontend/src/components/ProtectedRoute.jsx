@@ -64,8 +64,7 @@ const ProtectedRoute = ({ children }) => {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    auth().catch((error) => {
-      // console.error("🔑 Error during authentication:", error);
+    auth().catch(() => {
       setIsAuth(false);
     });
 
