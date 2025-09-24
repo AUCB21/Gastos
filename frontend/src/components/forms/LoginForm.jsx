@@ -6,6 +6,7 @@ import LoadingIndicator from "../LoadingIndicator";
 
 const LoginForm = ({route, method}) => {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,9 +20,24 @@ const LoginForm = ({route, method}) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!username.trim()) {
-      newErrors.username = "Usuario requerido";
+    
+    if (isLogin) {
+      // For login, require username (which can be username or email)
+      if (!username.trim()) {
+        newErrors.username = "Usuario o email requerido";
+      }
+    } else {
+      // For registration, require both username and email
+      if (!username.trim()) {
+        newErrors.username = "Usuario requerido";
+      }
+      if (!email.trim()) {
+        newErrors.email = "Email requerido";
+      } else if (!/\S+@\S+\.\S+/.test(email)) {
+        newErrors.email = "Email inválido";
+      }
     }
+    
     if (!password) {
       newErrors.password = "Contraseña requerida";
     } else if (!isLogin && password.length < 6) {
@@ -41,6 +57,21 @@ const LoginForm = ({route, method}) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Clear server errors when user starts typing
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    if (errors.username) {
+      setErrors(prev => ({ ...prev, username: '' }));
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (errors.email) {
+      setErrors(prev => ({ ...prev, email: '' }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -50,7 +81,16 @@ const LoginForm = ({route, method}) => {
     setErrors({});
 
     try {
-      const response = await api.post(route, { username, password });
+      let requestData;
+      if (isLogin) {
+        // For login, send the input as 'login' field to let backend handle email/username detection
+        requestData = { username: username, password };
+      } else {
+        // For registration, send username, email, and password
+        requestData = { username, email, password };
+      }
+      
+      const response = await api.post(route, requestData);
       
       if(isLogin){
         localStorage.setItem(ACCESS_TOKEN, response.data.access);
@@ -61,9 +101,52 @@ const LoginForm = ({route, method}) => {
         navigate("/login");
       }
     } catch (error) {
-      setErrors({ 
-        submit: error.response?.data?.detail || error.message || "Error en el servidor"
-      });
+      // Handle different types of errors
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        const newErrors = {};
+        
+        // Check for specific field errors from backend
+        if (errorData.username) {
+          // Handle username-specific errors (like "user already exists")
+          const usernameError = Array.isArray(errorData.username) 
+            ? errorData.username[0] 
+            : errorData.username;
+          newErrors.username = usernameError;
+        }
+        
+        if (errorData.email) {
+          // Handle email-specific errors (like "email already exists")
+          const emailError = Array.isArray(errorData.email) 
+            ? errorData.email[0] 
+            : errorData.email;
+          newErrors.email = emailError;
+        }
+        
+        // Handle general form errors
+        if (errorData.non_field_errors) {
+          const generalError = Array.isArray(errorData.non_field_errors)
+            ? errorData.non_field_errors[0]
+            : errorData.non_field_errors;
+          newErrors.submit = generalError;
+        } else if (errorData.detail) {
+          // Handle detail errors (common for authentication)
+          newErrors.submit = errorData.detail;
+        }
+        
+        // If we have field-specific errors, use them; otherwise show general error
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+        } else {
+          // Fallback for other structured errors
+          setErrors({ submit: "Error en el registro. Verifica los datos ingresados." });
+        }
+      } else {
+        // Handle network or other errors
+        setErrors({ 
+          submit: error.message || "Error en el servidor. Intenta nuevamente."
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -104,16 +187,16 @@ const LoginForm = ({route, method}) => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Usuario
+                {isLogin ? "Usuario o Email" : "Usuario"}
               </span>
               <input
-                type="username"
+                type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={handleUsernameChange}
                 className={`mt-1 block w-full rounded-xl border px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-blue-500/20 ${
                   errors.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300 focus:border-blue-500'
                 }`}
-                placeholder="Tu nombre de usuario"
+                placeholder={isLogin ? "Tu usuario o email" : "Tu nombre de usuario"}
                 disabled={loading}
               />
               {errors.username && (
@@ -125,6 +208,35 @@ const LoginForm = ({route, method}) => {
                 </p>
               )}
             </label>
+
+            {!isLogin && (
+              <label className="block">
+                <span className="text-xs font-medium text-gray-600 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Email
+                </span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  className={`mt-1 block w-full rounded-xl border px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-blue-500/20 ${
+                    errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300 focus:border-blue-500'
+                  }`}
+                  placeholder="tu@email.com"
+                  disabled={loading}
+                />
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.email}
+                  </p>
+                )}
+              </label>
+            )}
 
             <label className="block relative">
               <span className="text-xs font-medium text-gray-600 flex items-center gap-2">
