@@ -48,6 +48,8 @@ const RegAndLogout = () => {
 function App() {
   return (
     <>
+      <meta name="google-site-verification" content="pT_8Kp2I44n3WEBQC93nuYLMse13b4VxbbddU1JsxFg" />
+
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
