@@ -7,8 +7,10 @@ venv/
 .env.test.local
 .env.production.local
 
-# Database files
-*.json
+# Database and data dump files (be specific; don't ignore all JSON)
+database_backup*.json
+postgresql_backup*.json
+*_backup*.json
 *.db
 *.sqlite
 *.sqlite3
