@@ -8,6 +8,7 @@ venv/
 .env.production.local
 
 # Database files
+*.json
 *.db
 *.sqlite
 *.sqlite3
