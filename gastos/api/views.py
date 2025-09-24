@@ -21,7 +21,6 @@ class CreateUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def get_current_user(request):
     """
     API endpoint - Obtiene los datos del usuario autenticado

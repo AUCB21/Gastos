@@ -5,9 +5,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from datetime import timedelta
-import logging
 
-logger = logging.getLogger(__name__)
+# LOGGING DISABLED FOR PRODUCTION
+# import logging
+# logger = logging.getLogger(__name__)
 
 
 class AutoSessionManagementMiddleware:
@@ -82,7 +83,8 @@ class AutoSessionManagementMiddleware:
         except (InvalidToken, TokenError):
             pass
         except Exception as e:
-            logger.error(f"Error in AutoSessionManagementMiddleware: {str(e)}")
+            # Silent error handling - no logging
+            # logger.error(f"Error in AutoSessionManagementMiddleware: {str(e)}")
             pass
         
         response = self.get_response(request)
@@ -113,7 +115,9 @@ class AutoSessionManagementMiddleware:
                 user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
             )
         except Exception as e:
-            logger.error(f"Error creating token activity: {str(e)}")
+            # Silent error handling - no logging
+            # logger.error(f"Error creating token activity: {str(e)}")
+            pass
     
     def _update_token_activity(self, token_jti, user, request):
         """Update the last activity timestamp for the token."""
@@ -137,7 +141,9 @@ class AutoSessionManagementMiddleware:
                     user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
                 )
         except Exception as e:
-            logger.error(f"Error updating token activity: {str(e)}")
+            # Silent error handling - no logging
+            # logger.error(f"Error updating token activity: {str(e)}")
+            pass
     
     def _enforce_session_limit(self, user, current_token_jti):
         """Automatically limit concurrent sessions per user."""
@@ -164,11 +170,14 @@ class AutoSessionManagementMiddleware:
                     is_active=True
                 ).exclude(token_jti__in=sessions_to_keep).update(is_active=False)
                 
-                if deactivated_count > 0:
-                    logger.info(f"Enforced session limit for user {user.username}: deactivated {deactivated_count} old sessions")
+                # Silent operation - no logging
+                # if deactivated_count > 0:
+                #     logger.info(f"Enforced session limit for user {user.username}: deactivated {deactivated_count} old sessions")
                 
         except Exception as e:
-            logger.error(f"Error enforcing session limit: {str(e)}")
+            # Silent error handling - no logging
+            # logger.error(f"Error enforcing session limit: {str(e)}")
+            pass
     
     def _deactivate_token(self, token_jti, raw_token):
         """Mark token as inactive and blacklist it."""
@@ -183,10 +192,14 @@ class AutoSessionManagementMiddleware:
                 refresh_token = RefreshToken(raw_token)
                 refresh_token.blacklist()
             except Exception as e:
-                logger.warning(f"Could not blacklist token: {str(e)}")
+                # Silent error handling - no logging
+                # logger.warning(f"Could not blacklist token: {str(e)}")
+                pass
                 
         except Exception as e:
-            logger.error(f"Error deactivating token: {str(e)}")
+            # Silent error handling - no logging
+            # logger.error(f"Error deactivating token: {str(e)}")
+            pass
     
     def _increment_cleanup_counter(self):
         """Increment cleanup counter for background tasks."""
@@ -207,11 +220,14 @@ class AutoSessionManagementMiddleware:
                 created_at__lt=cutoff_time
             ).delete()[0]
             
-            if deleted_count > 0:
-                logger.info(f"Background cleanup: removed {deleted_count} old session records")
+            # Silent operation - no logging
+            # if deleted_count > 0:
+            #     logger.info(f"Background cleanup: removed {deleted_count} old session records")
                 
         except Exception as e:
-            logger.error(f"Error in background cleanup: {str(e)}")
+            # Silent error handling - no logging
+            # logger.error(f"Error in background cleanup: {str(e)}")
+            pass
     
     def _get_client_ip(self, request):
         """Get the client's IP address from the request."""

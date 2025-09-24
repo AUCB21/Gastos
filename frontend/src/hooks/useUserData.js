@@ -11,10 +11,14 @@ export const useUserData = () => {
     try {
       setLoading(true);
       setError(null);
+      // console.log("🔍 Fetching user data from /api/user/");
       const response = await api.get("/api/user/");
+      // console.log("✅ User data received:", response.data);
       setUser(response.data);
     } catch (err) {
-      console.error("Error fetching user data:", err);
+      // console.error("❌ Error fetching user data:", err);
+      // console.error("Error details:", err.response?.data);
+      // console.error("Error status:", err.response?.status);
       setError(err);
       setUser(null);
     } finally {
