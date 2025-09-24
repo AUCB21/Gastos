@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-const NavBar = ( { user, logout } ) => {
+
+
+const NavBar = ( { user } ) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -298,7 +300,7 @@ const NavBar = ( { user, logout } ) => {
                     </a>
                     <hr className="my-1 border-gray-200 dark:border-gray-600" />
                     <button 
-                      onClick={logout} 
+                      onClick={() => window.location.href = '/logout'}
                       className="block w-full text-left px-4 py-2 text-sm text-red-500 underline dark:text-gray-300 hover:bg-red-500 hover:text-white dark:hover:bg-gray-700 transition-colors"
                     >
                       Cerrar Sesion

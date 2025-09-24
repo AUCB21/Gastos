@@ -139,23 +139,23 @@ const GastoForm = ({ onGastoCreated }) => {
   };
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+    <div className="p-4">
+      <div className="max-w-xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-6">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-              <Receipt className="w-8 h-8 text-blue-600" />
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
+              <Receipt className="w-6 h-6 text-blue-600" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Crear Nuevo Gasto</h2>
-            <p className="text-gray-600">Complete todos los campos para registrar su gasto</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Crear Nuevo Gasto</h2>
+            <p className="text-gray-600 text-sm">Complete los campos para registrar su gasto</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Amount and Currency Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="relative">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   <DollarSign className="inline w-4 h-4 mr-1" />
                   Monto *
                 </label>
@@ -165,44 +165,44 @@ const GastoForm = ({ onGastoCreated }) => {
                   step="0.01"
                   value={formData.monto}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                     errors.monto ? 'border-red-300 bg-red-50' : 'border-gray-200'
                   }`}
                   placeholder="0.00"
                 />
                 {errors.monto && (
-                  <p className="mt-1 text-sm text-red-600">{errors.monto}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.monto}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Moneda *
                 </label>
                 <select
                   name="moneda"
                   value={formData.moneda}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                     errors.moneda ? 'border-red-300 bg-red-50' : 'border-gray-200'
                   }`}
                 >
-                  <option value="">Selecciona una moneda</option>
+                  <option value="">Moneda</option>
                   {Object.values(MONEDAS).map((moneda) => (
                     <option key={moneda.code} value={moneda.code}>
-                      {moneda.code} - {moneda.name}
+                      {moneda.code}
                     </option>
                   ))}
                 </select>
                 {errors.moneda && (
-                  <p className="mt-1 text-sm text-red-600">{errors.moneda}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.moneda}</p>
                 )}
               </div>
             </div>
 
             {/* Date */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 <Calendar className="inline w-4 h-4 mr-1" />
                 Fecha del Gasto *
               </label>
@@ -211,19 +211,19 @@ const GastoForm = ({ onGastoCreated }) => {
                 name="fecha_gasto"
                 value={formData.fecha_gasto}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                   errors.fecha_gasto ? 'border-red-300 bg-red-50' : 'border-gray-200'
                 }`}
               />
               {errors.fecha_gasto && (
-                <p className="mt-1 text-sm text-red-600">{errors.fecha_gasto}</p>
+                <p className="mt-1 text-xs text-red-600">{errors.fecha_gasto}</p>
               )}
             </div>
 
             {/* Installments Row */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Cuotas Pagadas *
                 </label>
                 <input
@@ -232,17 +232,17 @@ const GastoForm = ({ onGastoCreated }) => {
                   min="0"
                   value={formData.pagos_realizados}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                     errors.pagos_realizados ? 'border-red-300 bg-red-50' : 'border-gray-200'
                   }`}
                 />
                 {errors.pagos_realizados && (
-                  <p className="mt-1 text-sm text-red-600">{errors.pagos_realizados}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.pagos_realizados}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Cuotas Totales *
                 </label>
                 <input
@@ -251,19 +251,19 @@ const GastoForm = ({ onGastoCreated }) => {
                   min="1"
                   value={formData.pagos_totales}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                     errors.pagos_totales ? 'border-red-300 bg-red-50' : 'border-gray-200'
                   }`}
                 />
                 {errors.pagos_totales && (
-                  <p className="mt-1 text-sm text-red-600">{errors.pagos_totales}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.pagos_totales}</p>
                 )}
               </div>
             </div>
 
             {/* Payment Method */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 <CreditCard className="inline w-4 h-4 mr-1" />
                 Medio de Pago *
               </label>
@@ -271,7 +271,7 @@ const GastoForm = ({ onGastoCreated }) => {
                 name="medio_pago"
                 value={formData.medio_pago}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                   errors.medio_pago ? 'border-red-300 bg-red-50' : 'border-gray-200'
                 }`}
               >
@@ -283,60 +283,61 @@ const GastoForm = ({ onGastoCreated }) => {
                 ))}
               </select>
               {errors.medio_pago && (
-                <p className="mt-1 text-sm text-red-600">{errors.medio_pago}</p>
+                <p className="mt-1 text-xs text-red-600">{errors.medio_pago}</p>
               )}
             </div>
 
-            {/* Vendor */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                <User className="inline w-4 h-4 mr-1" />
-                Vendedor *
-              </label>
-              <input
-                type="text"
-                name="vendedor"
-                value={formData.vendedor}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                  errors.vendedor ? 'border-red-300 bg-red-50' : 'border-gray-200'
-                }`}
-                placeholder="Nombre del comercio o vendedor"
-              />
-              {errors.vendedor && (
-                <p className="mt-1 text-sm text-red-600">{errors.vendedor}</p>
-              )}
-            </div>
+            {/* Vendor and Category Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <User className="inline w-4 h-4 mr-1" />
+                  Vendedor *
+                </label>
+                <input
+                  type="text"
+                  name="vendedor"
+                  value={formData.vendedor}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                    errors.vendedor ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  }`}
+                  placeholder="Nombre del comercio"
+                />
+                {errors.vendedor && (
+                  <p className="mt-1 text-xs text-red-600">{errors.vendedor}</p>
+                )}
+              </div>
 
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                <Tag className="inline w-4 h-4 mr-1" />
-                Categoría *
-              </label>
-              <select
-                name="categoria"
-                value={formData.categoria}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                  errors.categoria ? 'border-red-300 bg-red-50' : 'border-gray-200'
-                }`}
-              >
-                <option value="">Selecciona una categoría</option>
-                {Object.values(CATEGORIAS).map((categoria) => (
-                  <option key={categoria.code} value={categoria.code}>
-                    {categoria.name}
-                  </option>
-                ))}
-              </select>
-              {errors.categoria && (
-                <p className="mt-1 text-sm text-red-600">{errors.categoria}</p>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Tag className="inline w-4 h-4 mr-1" />
+                  Categoría *
+                </label>
+                <select
+                  name="categoria"
+                  value={formData.categoria}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                    errors.categoria ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  }`}
+                >
+                  <option value="">Categoría</option>
+                  {Object.values(CATEGORIAS).map((categoria) => (
+                    <option key={categoria.code} value={categoria.code}>
+                      {categoria.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.categoria && (
+                  <p className="mt-1 text-xs text-red-600">{errors.categoria}</p>
+                )}
+              </div>
             </div>
 
             {/* Comments */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 <MessageSquare className="inline w-4 h-4 mr-1" />
                 Comentarios
               </label>
@@ -344,9 +345,9 @@ const GastoForm = ({ onGastoCreated }) => {
                 name="comentarios"
                 value={formData.comentarios}
                 onChange={handleInputChange}
-                rows={3}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
-                placeholder="Notas adicionales sobre el gasto (opcional)"
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                placeholder="Notas adicionales (opcional)"
               />
             </div>
 
@@ -354,21 +355,21 @@ const GastoForm = ({ onGastoCreated }) => {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-3 px-4 rounded-lg shadow-md transform transition-all duration-200 hover:scale-105 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   Creando...
                 </div>
               ) : (
-                'Crear'
+                'Crear Gasto'
               )}
             </button>
           </div>
 
           {/* Footer */}
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="mt-4 text-center text-xs text-gray-500">
             * Campos obligatorios
           </div>
         </div>
