@@ -406,12 +406,15 @@ class LoginAttempt(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     successful = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # Maintenance marker: populated only on the attempt that performed a cleanup
+    last_cleanup_at = models.DateTimeField(null=True, blank=True, help_text="Marca cuándo se realizó la última limpieza de intentos antiguos")
 
     class Meta:
         db_table = 'api_login_attempt'
         indexes = [
             models.Index(fields=['identifier', 'created_at']),
             models.Index(fields=['ip_address', 'created_at']),
+            models.Index(fields=['last_cleanup_at']),
         ]
         ordering = ['-created_at']
 

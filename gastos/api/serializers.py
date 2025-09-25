@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from .models import *
 from django.utils import timezone
 from datetime import timedelta
+from django.conf import settings
+from .utils import check_attempts
 
 
 
@@ -64,28 +66,38 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
         identifier = attrs.get(self.username_field)
         password = attrs.get('password')
 
-        # Rate limiting parameters
-        window_minutes = 10
-        max_failures = 5
-        block_minutes = 15
+        # Rate limiting parameters from settings (with safe defaults)
+        rl = getattr(settings, 'AUTH_RATE_LIMIT', {})
+        window_minutes = rl.get('WINDOW_MINUTES', 10)
+        max_failures = rl.get('MAX_FAILURES', 5)
+        block_minutes = rl.get('BLOCK_MINUTES', 15)
 
         now = timezone.now()
         window_start = now - timedelta(minutes=window_minutes)
         block_threshold = now - timedelta(minutes=block_minutes)
 
-        # Count recent failures for this identifier
-        recent_failures = LoginAttempt.objects.filter(
+        # Request IP extraction (serializer context must include request)
+        request = self.context.get('request') if hasattr(self, 'context') else None
+        ip_address = None
+        if request:
+            # X-Forwarded-For handling for proxy deployment
+            xff = request.META.get('HTTP_X_FORWARDED_FOR')
+            if xff:
+                ip_address = xff.split(',')[0].strip()
+            else:
+                ip_address = request.META.get('REMOTE_ADDR')
+
+        # Count recent failures for this identifier (optionally could factor IP)
+        recent_failures_qs = LoginAttempt.objects.filter(
             identifier__iexact=identifier,
             successful=False,
             created_at__gte=window_start
-        ).count()
+        )
+        recent_failures = recent_failures_qs.count()
 
         # Check if user is currently blocked (too many failures & last failure within block window)
         if recent_failures >= max_failures:
-            last_failure = LoginAttempt.objects.filter(
-                identifier__iexact=identifier,
-                successful=False
-            ).order_by('-created_at').first()
+            last_failure = recent_failures_qs.order_by('-created_at').first()
             if last_failure and last_failure.created_at >= block_threshold:
                 raise AuthenticationFailed({
                     'message': _('Demasiados intentos fallidos. Intenta nuevamente más tarde.'),
@@ -104,21 +116,37 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
         user = user_qs.first()
 
         if user is None:
-            LoginAttempt.objects.create(identifier=identifier, successful=False)
+            LoginAttempt.objects.create(identifier=identifier, ip_address=ip_address, successful=False)
             raise AuthenticationFailed({'message': _('Usuario o email no encontrado.'), 'code': 'user_not_found'})
         if not user.is_active:
-            LoginAttempt.objects.create(identifier=identifier, user=user, successful=False)
+            LoginAttempt.objects.create(identifier=identifier, user=user, ip_address=ip_address, successful=False)
             raise AuthenticationFailed({'message': _('Usuario inactivo.'), 'code': 'inactive_user'})
         if not user.check_password(password):
-            LoginAttempt.objects.create(identifier=identifier, user=user, successful=False)
-            raise AuthenticationFailed({'message': _('Contraseña incorrecta.'), 'code': 'bad_password'})
+            attempt = LoginAttempt.objects.create(identifier=identifier, user=user, ip_address=ip_address, successful=False)
+            # Remaining attempts before block
+            remaining = max(0, max_failures - (recent_failures + 1))
+            raise AuthenticationFailed({'message': _('Contraseña incorrecta.'), 'code': 'bad_password', 'remaining_attempts': remaining})
 
         # Set for parity with parent (some hooks rely on self.user)
         self.user = user
         refresh = RefreshToken.for_user(user)
 
         # Successful attempt
-        LoginAttempt.objects.create(identifier=identifier, user=user, successful=True)
+        success_attempt = LoginAttempt.objects.create(identifier=identifier, user=user, ip_address=ip_address, successful=True)
+
+        # Opportunistic cleanup of stale attempts (older than retention window).
+        # If cleanup performed (returns deleted count >=0), and we needed a new marker,
+        # utils.check_attempts will create a maintenance row. To avoid extra rows when
+        # cleanup actually happens, we can update this success attempt as the marker
+        # if a cleanup was just executed without our knowledge (rare race) we leave it.
+        try:
+            deleted = check_attempts()
+            if deleted > 0:
+                # Mark this attempt as the cleanup marker (optional optimization)
+                success_attempt.last_cleanup_at = timezone.now()
+                success_attempt.save(update_fields=["last_cleanup_at"])
+        except Exception:
+            pass  # Never block login
 
         data = {
             'refresh': str(refresh),

@@ -1,11 +1,13 @@
 from rest_framework.decorators import api_view, permission_classes
+from django.conf import settings
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
-from .models import Gasto, MedioPago
+from .models import Gasto, MedioPago, LoginAttempt
+from .utils import check_attempts
 from .serializers import (
     GastoSerializer,
     MedioPagoSerializer,
@@ -153,3 +155,73 @@ def logout_view(request):
             'success': False,
             'error': str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def login_attempt_analytics(request):
+    """Return aggregated analytics for recent login attempts.
+
+    Provides counts of failures, top failing identifiers, and distribution by IP.
+    """
+    from django.utils import timezone
+    from datetime import timedelta
+    window_hours = int(request.query_params.get('hours', 24))
+    cutoff = timezone.now() - timedelta(hours=window_hours)
+
+    qs = LoginAttempt.objects.filter(created_at__gte=cutoff)
+    total = qs.count()
+    failures = qs.filter(successful=False).count()
+    successes = total - failures
+
+    # Top 5 identifiers with most failures
+    from django.db.models import Count
+    top_identifiers = list(
+        qs.filter(successful=False)
+          .values('identifier')
+          .annotate(fails=Count('id'))
+          .order_by('-fails')[:5]
+    )
+
+    top_ips = list(
+        qs.filter(successful=False)
+          .values('ip_address')
+          .annotate(fails=Count('id'))
+          .order_by('-fails')[:5]
+    )
+
+    # Fetch last cleanup marker if any
+    last_cleanup = LoginAttempt.objects.filter(last_cleanup_at__isnull=False).order_by('-last_cleanup_at').values_list('last_cleanup_at', flat=True).first()
+
+    return Response({
+        'window_hours': window_hours,
+        'total_attempts': total,
+        'failures': failures,
+        'successes': successes,
+        'failure_rate': (failures / total) if total else 0,
+        'top_identifiers': top_identifiers,
+        'top_ips': top_ips,
+        'last_cleanup_at': last_cleanup,
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def login_attempt_manual_cleanup(request):
+    """Admin endpoint to force a cleanup irrespective of 24h interval.
+
+    It bypasses the interval logic by directly deleting old attempts and stamping a marker.
+    """
+    from django.utils import timezone
+    from datetime import timedelta
+
+    rl = getattr(settings, 'AUTH_RATE_LIMIT', {})
+    retention_days = rl.get('RETENTION_DAYS', 30)
+    cutoff = timezone.now() - timedelta(days=retention_days)
+
+    # Direct delete (not using check_attempts to bypass interval)
+    deleted, _ = LoginAttempt.objects.filter(created_at__lt=cutoff).delete()
+    # Create a marker row
+    marker = LoginAttempt.objects.create(identifier='__manual_cleanup__', successful=True, last_cleanup_at=timezone.now())
+
+    return Response({'deleted': deleted, 'last_cleanup_at': marker.last_cleanup_at}, status=status.HTTP_200_OK)

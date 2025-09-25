@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Gasto, MedioPago, TokenActivity
+from .models import Gasto, MedioPago, TokenActivity, LoginAttempt
 
 # Register your models here.
 
@@ -91,3 +91,22 @@ class TokenActivityAdmin(admin.ModelAdmin):
         count = TokenActivity.objects.filter(created_at__lt=cutoff_time).delete()[0]
         self.message_user(request, f'{count} old token records cleaned up.')
     cleanup_old_tokens.short_description = 'Cleanup tokens older than 24 hours'
+
+
+@admin.register(LoginAttempt)
+class LoginAttemptAdmin(admin.ModelAdmin):
+    list_display = ('identifier', 'ip_address', 'user', 'successful', 'created_at', 'last_cleanup_at')
+    list_filter = ('successful', 'ip_address', 'identifier')
+    search_fields = ('identifier', 'ip_address', 'user__username', 'user__email')
+    readonly_fields = ('identifier', 'ip_address', 'user', 'successful', 'created_at', 'last_cleanup_at')
+    ordering = ('-created_at',)
+    actions = ['manual_cleanup_old_attempts']
+
+    def manual_cleanup_old_attempts(self, request, queryset):
+        from .utils import check_attempts
+        deleted = check_attempts()
+        if deleted:
+            self.message_user(request, f"Eliminados {deleted} intentos antiguos.")
+        else:
+            self.message_user(request, "No se eliminaron intentos (posiblemente ejecutado en las últimas 24hs).")
+    manual_cleanup_old_attempts.short_description = 'Ejecutar limpieza de intentos antiguos'

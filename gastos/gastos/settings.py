@@ -148,3 +148,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 SESSION_TIMEOUT_MINUTES = 60
+
+# Authentication rate limiting & login attempt retention (custom auth enhancements)
+AUTH_RATE_LIMIT = {
+    'WINDOW_MINUTES': 10,        # Time window to count failed attempts
+    'MAX_FAILURES': 5,           # Failures allowed before temporary block
+    'BLOCK_MINUTES': 15,         # How long user/identifier is blocked after threshold
+    'RETENTION_DAYS': 30,        # Purge LoginAttempt rows older than this (management command)
+}
