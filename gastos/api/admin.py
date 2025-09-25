@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Gasto, MedioPago
+from .models import Gasto, MedioPago, TokenActivity
 
 # Register your models here.
 
@@ -11,7 +11,7 @@ class MedioPagoAdmin(admin.ModelAdmin):
     ordering = ('id',)
     
     fieldsets = (
-        ('Información del Medio de Pago', {
+        ('InformaciÃ³n del Medio de Pago', {
             'fields': ('user', 'ente_emisor', 'tipo', 'extra')
         }),
     )
@@ -24,7 +24,7 @@ class GastoAdmin(admin.ModelAdmin):
     ordering = ('-fecha_gasto',)
     
     fieldsets = (
-        ('Información del Usuario', {
+        ('InformaciÃ³n del Usuario', {
             'fields': ('user',)
         }),
         ('Detalles del Gasto', {
@@ -41,3 +41,53 @@ class GastoAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+@admin.register(TokenActivity)
+class TokenActivityAdmin(admin.ModelAdmin):
+    list_display = ('token_jti_short', 'user', 'last_activity', 'is_active', 'ip_address', 'created_at')
+    list_filter = ('is_active', 'created_at', 'last_activity')
+    search_fields = ('token_jti', 'user__username', 'ip_address')
+    ordering = ('-last_activity',)
+    readonly_fields = ('token_jti', 'created_at', 'updated_at')
+    
+    fieldsets = (
+        ('Token Information', {
+            'fields': ('token_jti', 'user', 'is_active')
+        }),
+        ('Activity Tracking', {
+            'fields': ('last_activity', 'created_at', 'updated_at')
+        }),
+        ('Client Information', {
+            'fields': ('ip_address', 'user_agent'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def token_jti_short(self, obj):
+        """Display a shortened version of the token JTI for better readability."""
+        return f"{obj.token_jti[:8]}...{obj.token_jti[-4:]}" if len(obj.token_jti) > 12 else obj.token_jti
+    token_jti_short.short_description = 'Token ID'
+    
+    actions = ['deactivate_tokens', 'activate_tokens', 'cleanup_old_tokens']
+    
+    def deactivate_tokens(self, request, queryset):
+        """Admin action to deactivate selected tokens."""
+        count = queryset.update(is_active=False)
+        self.message_user(request, f'{count} tokens deactivated successfully.')
+    deactivate_tokens.short_description = 'Deactivate selected tokens'
+    
+    def activate_tokens(self, request, queryset):
+        """Admin action to activate selected tokens."""
+        count = queryset.update(is_active=True)
+        self.message_user(request, f'{count} tokens activated successfully.')
+    activate_tokens.short_description = 'Activate selected tokens'
+    
+    def cleanup_old_tokens(self, request, queryset):
+        """Admin action to cleanup tokens older than 24 hours."""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        cutoff_time = timezone.now() - timedelta(hours=24)
+        count = TokenActivity.objects.filter(created_at__lt=cutoff_time).delete()[0]
+        self.message_user(request, f'{count} old token records cleaned up.')
+    cleanup_old_tokens.short_description = 'Cleanup tokens older than 24 hours'
