@@ -41,7 +41,8 @@ SIMPLE_JWT = {
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
     "JTI_CLAIM": "jti",
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    # Use custom serializer that accepts username OR email
+    "TOKEN_OBTAIN_SERIALIZER": "api.serializers.EmailOrUsernameTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
 }
 

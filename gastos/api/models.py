@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db.models.functions import Lower
 
 
 class Project(models.Model):
@@ -392,3 +393,38 @@ class TokenActivity(models.Model):
         Get all active sessions for a user.
         """
         return cls.objects.filter(user=user, is_active=True).order_by('-last_activity')
+
+
+class LoginAttempt(models.Model):
+    """Track recent login attempts to enforce rate limiting on password failures.
+
+    We store both identifier (what user typed) and resolved user (if any) so we can
+    throttle by IP + identifier combination.
+    """
+    identifier = models.CharField(max_length=150, db_index=True, help_text="Username o email usado en el intento")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, db_index=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    successful = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'api_login_attempt'
+        indexes = [
+            models.Index(fields=['identifier', 'created_at']),
+            models.Index(fields=['ip_address', 'created_at']),
+        ]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        status = 'OK' if self.successful else 'FAIL'
+        return f"{self.identifier} ({status}) @ {self.created_at:%Y-%m-%d %H:%M:%S}"
+
+# NOTE: Enforcing a DB-level unique constraint on the built-in User.email field
+# directly requires a custom migration altering auth_user.
+# Because we are still using Django's default User model, we will generate
+# a migration manually (outside this models file) that executes:
+#   migrations.RunSQL(
+#       sql="CREATE UNIQUE INDEX IF NOT EXISTS auth_user_email_ci_unique ON auth_user (LOWER(email));",
+#       reverse_sql="DROP INDEX IF EXISTS auth_user_email_ci_unique;"
+#   )
+# This gives case-insensitive uniqueness without replacing the User model.

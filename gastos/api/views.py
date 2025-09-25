@@ -3,9 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 from .models import Gasto, MedioPago
-from .serializers import GastoSerializer, MedioPagoSerializer, UserSerializer
+from .serializers import (
+    GastoSerializer,
+    MedioPagoSerializer,
+    UserSerializer,
+    EmailOrUsernameTokenObtainPairSerializer,
+)
 import requests
 
 URL_DOLARAPI = 'https://dolarapi.com/v1/dolares'
@@ -18,6 +24,12 @@ class CreateUserView(generics.CreateAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+
+
+class EmailOrUsernameTokenObtainPairView(TokenObtainPairView):
+    """JWT obtain pair view supporting username OR email authentication."""
+    serializer_class = EmailOrUsernameTokenObtainPairSerializer
     permission_classes = [AllowAny]
 
 @api_view(['GET'])
