@@ -41,7 +41,8 @@ SIMPLE_JWT = {
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
     "JTI_CLAIM": "jti",
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    # Use custom serializer that accepts username OR email
+    "TOKEN_OBTAIN_SERIALIZER": "api.serializers.EmailOrUsernameTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
 }
 
@@ -147,3 +148,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 SESSION_TIMEOUT_MINUTES = 60
+
+# Authentication rate limiting & login attempt retention (custom auth enhancements)
+AUTH_RATE_LIMIT = {
+    'WINDOW_MINUTES': 10,        # Time window to count failed attempts
+    'MAX_FAILURES': 5,           # Failures allowed before temporary block
+    'BLOCK_MINUTES': 15,         # How long user/identifier is blocked after threshold
+    'RETENTION_DAYS': 30,        # Purge LoginAttempt rows older than this (management command)
+}
