@@ -3,17 +3,149 @@ from django.conf import settings
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.exceptions import PermissionDenied
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
-from .models import Gasto, MedioPago, LoginAttempt
+from .models import Gasto, MedioPago, LoginAttempt, Grupo, GrupoMembership, GrupoInvitation, ExpenseSplit
 from .utils import check_attempts
 from .serializers import (
     GastoSerializer,
     MedioPagoSerializer,
+    GrupoSerializer,
+    GrupoMembershipSerializer,
+    GrupoInvitationSerializer,
+    ExpenseSplitSerializer,
     UserSerializer,
     EmailOrUsernameTokenObtainPairSerializer,
 )
+
+# Grupos API views
+class GrupoListCreate(generics.ListCreateAPIView):
+    """
+    API endpoint - Lista y crea grupos
+    """
+    serializer_class = GrupoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return only grupos for the authenticated user (owner or member)
+        return Grupo.objects.filter(members=self.request.user).distinct()
+
+    def perform_create(self, serializer):
+        # Automatically set the owner to the authenticated user
+        grupo = serializer.save(owner=self.request.user)
+        grupo.members.add(self.request.user)
+
+
+class GrupoDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint - Obtiene, actualiza o elimina un grupo específico
+    """
+    serializer_class = GrupoSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        # Only allow access to grupos where the user is a member
+        return Grupo.objects.filter(members=self.request.user).distinct()
+
+
+class GrupoMembershipListCreate(generics.ListCreateAPIView):
+    """
+    API endpoint - Lista y crea membresías de grupo
+    """
+    serializer_class = GrupoMembershipSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        grupo_id = self.request.query_params.get('grupo_id')
+        if grupo_id:
+            # Return memberships for a specific grupo (if user is a member)
+            return GrupoMembership.objects.filter(
+                grupo_id=grupo_id,
+                grupo__members=self.request.user
+            ).distinct()
+        else:
+            # Return all memberships for grupos where user is a member
+            return GrupoMembership.objects.filter(
+                grupo__members=self.request.user
+            ).distinct()
+
+    def perform_create(self, serializer):
+        # Ensure user can only create memberships for grupos they belong to
+        grupo = serializer.validated_data['grupo']
+        if not grupo.is_member(self.request.user):
+            raise PermissionDenied("You don't have permission to manage this grupo's memberships")
+        serializer.save()
+
+
+class GrupoMembershipDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint - Obtiene, actualiza o elimina una membresía específica
+    """
+    serializer_class = GrupoMembershipSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        # Only allow access to memberships in grupos where the user is a member
+        return GrupoMembership.objects.filter(
+            grupo__members=self.request.user
+        ).distinct()
+
+
+class GrupoInvitationListCreate(generics.ListCreateAPIView):
+    """
+    API endpoint - Lista y crea invitaciones de grupo
+    """
+    serializer_class = GrupoInvitationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return invitations for grupos where the user is a member
+        return GrupoInvitation.objects.filter(
+            grupo__members=self.request.user
+        ).distinct()
+
+    def perform_create(self, serializer):
+        # Automatically set the invited_by to the authenticated user
+        grupo = serializer.validated_data['grupo']
+        if not grupo.is_member(self.request.user):
+            raise PermissionDenied("You don't have permission to invite users to this grupo")
+        serializer.save(invited_by=self.request.user)
+
+
+class ExpenseSplitListCreate(generics.ListCreateAPIView):
+    """
+    API endpoint - Lista y crea divisiones de gastos
+    """
+    serializer_class = ExpenseSplitSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        expense_id = self.request.query_params.get('expense_id')
+        if expense_id:
+            # Return splits for a specific expense
+            return ExpenseSplit.objects.filter(
+                expense_id=expense_id,
+                expense__user=self.request.user
+            )
+        else:
+            # Return all splits for expenses created by the user or splits assigned to the user
+            from django.db.models import Q
+            return ExpenseSplit.objects.filter(
+                Q(expense__user=self.request.user) | Q(user=self.request.user)
+            ).distinct()
+
+    def perform_create(self, serializer):
+        # Ensure user can only create splits for their own expenses
+        expense = serializer.validated_data['expense']
+        if expense.user != self.request.user:
+            raise PermissionDenied("You can only create splits for your own expenses")
+        serializer.save()
+
+
 import requests
 
 URL_DOLARAPI = 'https://dolarapi.com/v1/dolares'
