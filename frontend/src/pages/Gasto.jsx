@@ -53,9 +53,6 @@ const GastoPage = () => {
   return (
     <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false}>
       <div className="max-w-2xl mx-auto">
-        {/* Page Title */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Crear Nuevo Gasto</h1>
-        
         {/* Gasto Form */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <GastoForm onGastoCreated={handleCreateGasto} />

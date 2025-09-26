@@ -1,8 +1,66 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-dodger-blue-50: #f5fbff;
+  --color-dodger-blue-100: #dce9ff;
+  --color-dodger-blue-200: #bcd7ff;
+  --color-dodger-blue-300: #9bc6ff;
+  --color-dodger-blue-400: #6fb5ff;
+  --color-dodger-blue-500: #3ca0ff;
+  --color-dodger-blue-600: #348ae7;
+  --color-dodger-blue-700: #286db6;
+  --color-dodger-blue-800: #184b80;
+  --color-dodger-blue-900: #082749;
+  --color-dodger-blue-950: #031830;
+  
+  --color-primary-50: #f5fbff;
+  --color-primary-100: #dce9ff;
+  --color-primary-200: #bcd7ff;
+  --color-primary-300: #9bc6ff;
+  --color-primary-400: #6fb5ff;
+  --color-primary-500: #3ca0ff;
+  --color-primary-600: #348ae7;
+  --color-primary-700: #286db6;
+  --color-primary-800: #184b80;
+  --color-primary-900: #082749;
+  --color-primary-950: #031830;
+  
+  --color-brand-50: #f5fbff;
+  --color-brand-100: #dce9ff;
+  --color-brand-200: #bcd7ff;
+  --color-brand-300: #9bc6ff;
+  --color-brand-400: #6fb5ff;
+  --color-brand-500: #3ca0ff;
+  --color-brand-600: #348ae7;
+  --color-brand-700: #286db6;
+  --color-brand-800: #184b80;
+  --color-brand-900: #082749;
+  --color-brand-950: #031830;
+}
+
 /* Apply fonts globally to ALL elements */
 *, *::before, *::after {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Specific elements that might need explicit font setting */
+body, html {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Headings use Mulish */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Mulish", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Form elements (buttons, inputs, selects, etc.) */
+button, input, select, textarea, label {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Additional UI elements */
+div, span, p, a, li, td, th {
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 

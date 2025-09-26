@@ -86,7 +86,7 @@ const MPForm = ({ onMPCreated }) => {
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
               <CreditCard className="w-6 h-6 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Crear Medio de Pago</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Crea un medio de pago</h2>
             <p className="text-gray-600 text-sm">Complete los campos para agregar un medio de pago</p>
           </div>
 
@@ -153,7 +153,7 @@ const MPForm = ({ onMPCreated }) => {
                     errors.tipo_tarjeta ? 'border-red-300 bg-red-50' : 'border-gray-200'
                   }`}
                 >
-                  <option value="">Seleccione marca</option>
+                  <option value="">Seleccione medio</option>
                   {tiposTarjeta.map((tipo) => (
                     <option key={tipo.value} value={tipo.value}>
                       {tipo.label}
@@ -180,7 +180,7 @@ const MPForm = ({ onMPCreated }) => {
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none ${
                   errors.extra ? 'border-red-300 bg-red-50' : 'border-gray-200'
                 }`}
-                placeholder="Información adicional sobre este medio de pago"
+                placeholder="Información adicional sobre este medio de pago (Ej: últimos 4 dígitos, sucursal, etc.)"
               />
               {errors.extra && (
                 <p className="mt-1 text-xs text-red-600">{errors.extra}</p>
