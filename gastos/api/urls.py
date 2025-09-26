@@ -22,4 +22,18 @@ urlpatterns = [
     # Grupos - Class-based views
     path('grupos/', views.GrupoListCreate.as_view(), name='grupos_list_create'),
     path('grupos/<int:id>/', views.GrupoDetail.as_view(), name='grupos_detail'),
+    
+    # Grupo Memberships
+    path('grupo-memberships/', views.GrupoMembershipListCreate.as_view(), name='grupo_memberships_list_create'),
+    path('grupo-memberships/<int:id>/', views.GrupoMembershipDetail.as_view(), name='grupo_memberships_detail'),
+    
+    # Grupo Invitations  
+    path('grupo-invitations/', views.GrupoInvitationListCreate.as_view(), name='grupo_invitations_list_create'),
+    
+    # Expense Splits
+    path('expense-splits/', views.ExpenseSplitListCreate.as_view(), name='expense_splits_list_create'),
+    
+    # Admin endpoints
+    path('admin/login-attempts/analytics/', views.login_attempt_analytics, name='login_attempt_analytics'),
+    path('admin/login-attempts/cleanup/', views.login_attempt_manual_cleanup, name='login_attempt_manual_cleanup'),
 ]

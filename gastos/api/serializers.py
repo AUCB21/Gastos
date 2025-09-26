@@ -161,16 +161,64 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class GrupoSerializer(serializers.ModelSerializer):
+    member_count = serializers.ReadOnlyField(source='get_member_count')
+    total_expenses = serializers.ReadOnlyField(source='get_total_expenses')
+    
     class Meta:
         model = Grupo
         fields = '__all__'
+        read_only_fields = ('owner', 'created_at', 'updated_at')
+
+
+class GrupoMembershipSerializer(serializers.ModelSerializer):
+    user_info = UserSerializer(source='user', read_only=True)
+    grupo_name = serializers.CharField(source='grupo.name', read_only=True)
+    
+    class Meta:
+        model = GrupoMembership
+        fields = '__all__'
+        read_only_fields = ('joined_at', 'updated_at')
+
+
+class GrupoInvitationSerializer(serializers.ModelSerializer):
+    invited_by_username = serializers.CharField(source='invited_by.username', read_only=True)
+    grupo_name = serializers.CharField(source='grupo.name', read_only=True)
+    
+    class Meta:
+        model = GrupoInvitation
+        fields = '__all__'
+        read_only_fields = ('invitation_token', 'created_at', 'responded_at')
+
+
+class ExpenseSplitSerializer(serializers.ModelSerializer):
+    user_info = UserSerializer(source='user', read_only=True)
+    expense_info = serializers.StringRelatedField(source='expense', read_only=True)
+    remaining_amount = serializers.ReadOnlyField(source='get_remaining_amount')
+    is_fully_paid = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = ExpenseSplit
+        fields = '__all__'
+        read_only_fields = ('created_at', 'updated_at')
+
 
 class MedioPagoSerializer(serializers.ModelSerializer):
+    grupo_name = serializers.CharField(source='grupo.name', read_only=True)
+    
     class Meta:
         model = MedioPago
         fields = '__all__'
 
+
 class GastoSerializer(serializers.ModelSerializer):
+    grupo_name = serializers.CharField(source='grupo.name', read_only=True)
+    medio_pago_info = MedioPagoSerializer(source='medio_pago', read_only=True)
+    paid_by_username = serializers.CharField(source='paid_by.username', read_only=True)
+    total_amount = serializers.ReadOnlyField(source='get_total_amount')
+    remaining_amount = serializers.ReadOnlyField(source='get_remaining_amount')
+    splits = ExpenseSplitSerializer(source='get_splits', many=True, read_only=True)
+    
     class Meta:
         model = Gasto
         fields = '__all__'
+        read_only_fields = ('created_at', 'updated_at')
