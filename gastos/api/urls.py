@@ -18,4 +18,8 @@ urlpatterns = [
     # Expenses (Gastos) - Class-based views
     path('gastos/', views.GastoListCreate.as_view(), name='gastos_list_create'),
     path('gastos/<int:id>/', views.GastoDetail.as_view(), name='gastos_detail'),
+
+    # Grupos - Class-based views
+    path('grupos/', views.GrupoListCreate.as_view(), name='grupos_list_create'),
+    path('grupos/<int:id>/', views.GrupoDetail.as_view(), name='grupos_detail'),
 ]

@@ -159,11 +159,17 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
         }
         return data
 
+
+class GrupoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grupo
+        fields = '__all__'
+
 class MedioPagoSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedioPago
         fields = '__all__'
-        
+
 class GastoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gasto

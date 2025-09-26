@@ -6,14 +6,45 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
-from .models import Gasto, MedioPago, LoginAttempt
+from .models import Gasto, MedioPago, LoginAttempt, Grupo
 from .utils import check_attempts
 from .serializers import (
     GastoSerializer,
     MedioPagoSerializer,
+    GrupoSerializer,
     UserSerializer,
     EmailOrUsernameTokenObtainPairSerializer,
 )
+
+# Grupos API views
+class GrupoListCreate(generics.ListCreateAPIView):
+    """
+    API endpoint - Lista y crea grupos
+    """
+    serializer_class = GrupoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return only grupos for the authenticated user (owner or member)
+        return Grupo.objects.filter(members=self.request.user).distinct()
+
+    def perform_create(self, serializer):
+        # Automatically set the owner to the authenticated user
+        grupo = serializer.save(owner=self.request.user)
+        grupo.members.add(self.request.user)
+
+
+class GrupoDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint - Obtiene, actualiza o elimina un grupo específico
+    """
+    serializer_class = GrupoSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        # Only allow access to grupos where the user is a member
+        return Grupo.objects.filter(members=self.request.user).distinct()
 import requests
 
 URL_DOLARAPI = 'https://dolarapi.com/v1/dolares'
