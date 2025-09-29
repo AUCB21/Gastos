@@ -1,20 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db.models.functions import Lower
 
 
-class Project(models.Model):
+class Grupo(models.Model):
     """
-    Model to represent a shared project/trip/group where multiple users can share expenses.
+    Model to represent a shared grupo/trip/group where multiple users can share expenses.
     """
-    PROJECT_TYPES = (
+    GRUPO_TYPES = (
         ('trip', 'Viaje'),
-        ('project', 'Proyecto'),
-        ('group', 'Grupo'),
+        ('grupo', 'Grupo'),
         ('event', 'Evento'),
         ('shared', 'Gastos Compartidos'),
     )
-    
     CURRENCY_CHOICES = (
         ('ARS', 'Peso Argentino'),
         ('USD', 'Dolar Americano'),
@@ -22,59 +21,49 @@ class Project(models.Model):
         ('BRL', 'Real Brasileño'),
         ('CLP', 'Peso Chileno'),
     )
-    
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200, help_text="Nombre del proyecto/viaje/grupo")
-    description = models.TextField(max_length=500, blank=True, help_text="Descripción del proyecto")
-    project_type = models.CharField(max_length=20, choices=PROJECT_TYPES, default='shared')
-    
-    # Project settings
+    name = models.CharField(max_length=200, help_text="Nombre del grupo/viaje/evento")
+    description = models.TextField(max_length=500, blank=True, help_text="Descripción del grupo")
+    grupo_type = models.CharField(max_length=20, choices=GRUPO_TYPES, default='shared')
+    # Grupo settings
     default_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='ARS')
     is_active = models.BooleanField(default=True)
     allow_new_members = models.BooleanField(default=True, help_text="Permitir que se agreguen nuevos miembros")
-    
     # Membership management
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_projects')
-    members = models.ManyToManyField(User, through='ProjectMembership', related_name='projects')
-    
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_grupos')
+    members = models.ManyToManyField(User, through='GrupoMembership', related_name='grupos')
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    start_date = models.DateField(null=True, blank=True, help_text="Fecha de inicio del proyecto")
-    end_date = models.DateField(null=True, blank=True, help_text="Fecha de fin del proyecto")
-    
+    start_date = models.DateField(null=True, blank=True, help_text="Fecha de inicio del grupo")
+    end_date = models.DateField(null=True, blank=True, help_text="Fecha de fin del grupo")
     class Meta:
-        db_table = 'api_project'
+        db_table = 'api_grupo'
         ordering = ['-updated_at', '-created_at']
         indexes = [
             models.Index(fields=['owner']),
             models.Index(fields=['is_active']),
-            models.Index(fields=['project_type']),
+            models.Index(fields=['grupo_type']),
         ]
-    
     def __str__(self):
-        return f"{self.name} ({self.get_project_type_display()})"
-    
+        return f"{self.name} ({self.get_grupo_type_display()})"
     def get_total_expenses(self):
-        """Get total amount of all expenses in this project"""
+        """Get total amount of all expenses in this grupo"""
         return self.gastos.aggregate(total=models.Sum('monto'))['total'] or 0
-    
     def get_member_count(self):
         """Get number of active members"""
-        return self.members.filter(projectmembership__is_active=True).count()
-    
+        return self.members.filter(grupomembership__is_active=True).count()
     def is_member(self, user):
-        """Check if user is an active member of this project"""
-        return self.members.filter(id=user.id, projectmembership__is_active=True).exists()
-    
+        """Check if user is an active member of this grupo"""
+        return self.members.filter(id=user.id, grupomembership__is_active=True).exists()
     def can_add_expense(self, user):
-        """Check if user can add expenses to this project"""
+        """Check if user can add expenses to this grupo"""
         return self.is_member(user) and self.is_active
 
 
-class ProjectMembership(models.Model):
+class GrupoMembership(models.Model):
     """
-    Through model for Project-User relationship with additional membership info.
+    Through model for Grupo-User relationship with additional membership info.
     """
     ROLE_CHOICES = (
         ('owner', 'Propietario'),
@@ -82,36 +71,32 @@ class ProjectMembership(models.Model):
         ('member', 'Miembro'),
         ('viewer', 'Solo Vista'),
     )
-    
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='member')
     is_active = models.BooleanField(default=True)
     can_add_expenses = models.BooleanField(default=True)
     can_edit_expenses = models.BooleanField(default=False)
     can_manage_members = models.BooleanField(default=False)
-    
     # Timestamps
     joined_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
     class Meta:
-        db_table = 'api_project_membership'
-        unique_together = ('project', 'user')
+        db_table = 'api_grupo_membership'
+        unique_together = ('grupo', 'user')
         indexes = [
-            models.Index(fields=['project', 'is_active']),
+            models.Index(fields=['grupo', 'is_active']),
             models.Index(fields=['user', 'is_active']),
         ]
-    
     def __str__(self):
-        return f"{self.user.username} - {self.project.name} ({self.role})"
+        return f"{self.user.username} - {self.grupo.name} ({self.role})"
 
 
 
 class MedioPago(models.Model):
     id: int = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medios_pago', default=1)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='medios_pago', null=True, blank=True, help_text="Proyecto asociado (opcional)")
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, related_name='medios_pago', null=True, blank=True, help_text="Grupo asociado (opcional)")
     ente_emisor: str = models.CharField(max_length=100)
     tipo: str = models.CharField(max_length=8)
     tipo_tarjeta: str = models.CharField(max_length=16, blank=True)
@@ -121,12 +106,12 @@ class MedioPago(models.Model):
         db_table = 'api_medio_pago'
         indexes = [
             models.Index(fields=['user']),
-            models.Index(fields=['project']),
+            models.Index(fields=['grupo']),
         ]
 
     def __str__(self):
-        project_info = f" - {self.project.name}" if self.project else ""
-        return f"Medio de Pago {self.id} - {self.ente_emisor} - {self.tipo}{project_info}"
+        grupo_info = f" - {self.grupo.name}" if self.grupo else ""
+        return f"Medio de Pago {self.id} - {self.ente_emisor} - {self.tipo}{grupo_info}"
 
 class Gasto(models.Model):
     CATEGORIAS_CHOICES = (
@@ -160,7 +145,7 @@ class Gasto(models.Model):
 
     id: int = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='gastos', default=1, help_text="Usuario que registró el gasto")
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='gastos', null=True, blank=True, help_text="Proyecto asociado")
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, related_name='gastos', null=True, blank=True, help_text="Grupo asociado")
     
     # Basic expense info
     monto: float = models.FloatField()
@@ -187,16 +172,16 @@ class Gasto(models.Model):
         ordering = ['-fecha_gasto', '-created_at']
         indexes = [
             models.Index(fields=['user']),
-            models.Index(fields=['project']),
+            models.Index(fields=['grupo']),
             models.Index(fields=['fecha_gasto']),
             models.Index(fields=['categoria']),
             models.Index(fields=['is_shared']),
         ]
 
     def __str__(self):
-        project_info = f" - {self.project.name}" if self.project else ""
+        grupo_info = f" - {self.grupo.name}" if self.grupo else ""
         shared_info = " (Compartido)" if self.is_shared else ""
-        return f"Gasto {self.id} - {self.categoria} - {self.monto} {self.moneda}{project_info}{shared_info}"
+        return f"Gasto {self.id} - {self.categoria} - {self.monto} {self.moneda}{grupo_info}{shared_info}"
     
     def get_total_amount(self):
         """Get total amount including all installments"""
@@ -273,9 +258,9 @@ class ExpenseSplit(models.Model):
         self.save()
 
 
-class ProjectInvitation(models.Model):
+class GrupoInvitation(models.Model):
     """
-    Model to handle project invitations sent to users.
+    Model to handle grupo invitations sent to users.
     """
     INVITATION_STATUS = (
         ('pending', 'Pendiente'),
@@ -283,44 +268,36 @@ class ProjectInvitation(models.Model):
         ('declined', 'Rechazada'),
         ('expired', 'Expirada'),
     )
-    
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='invitations')
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, related_name='invitations')
     invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
     invited_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_invitations', null=True, blank=True)
     email = models.EmailField(help_text="Email del usuario invitado")
-    role = models.CharField(max_length=10, choices=ProjectMembership.ROLE_CHOICES, default='member')
+    role = models.CharField(max_length=10, choices=GrupoMembership.ROLE_CHOICES, default='member')
     status = models.CharField(max_length=10, choices=INVITATION_STATUS, default='pending')
-    
     # Settings for the invited user
     can_add_expenses = models.BooleanField(default=True)
     can_edit_expenses = models.BooleanField(default=False)
     can_manage_members = models.BooleanField(default=False)
-    
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(help_text="Fecha de expiración de la invitación")
     responded_at = models.DateTimeField(null=True, blank=True)
-    
     # Invitation token for security
     invitation_token = models.CharField(max_length=100, unique=True, help_text="Token único para la invitación")
-    
     class Meta:
-        db_table = 'api_project_invitation'
-        unique_together = ('project', 'email')
+        db_table = 'api_grupo_invitation'
+        unique_together = ('grupo', 'email')
         indexes = [
-            models.Index(fields=['project']),
+            models.Index(fields=['grupo']),
             models.Index(fields=['invited_user']),
             models.Index(fields=['status']),
             models.Index(fields=['invitation_token']),
         ]
-    
     def __str__(self):
-        return f"Invitación a {self.email} para {self.project.name} ({self.status})"
-    
+        return f"Invitación a {self.email} para {self.grupo.name} ({self.status})"
     def is_expired(self):
         """Check if invitation has expired"""
         return timezone.now() > self.expires_at
-    
     def can_accept(self):
         """Check if invitation can still be accepted"""
         return self.status == 'pending' and not self.is_expired()
@@ -392,3 +369,41 @@ class TokenActivity(models.Model):
         Get all active sessions for a user.
         """
         return cls.objects.filter(user=user, is_active=True).order_by('-last_activity')
+
+
+class LoginAttempt(models.Model):
+    """Track recent login attempts to enforce rate limiting on password failures.
+
+    We store both identifier (what user typed) and resolved user (if any) so we can
+    throttle by IP + identifier combination.
+    """
+    identifier = models.CharField(max_length=150, db_index=True, help_text="Username o email usado en el intento")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, db_index=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    successful = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    # Maintenance marker: populated only on the attempt that performed a cleanup
+    last_cleanup_at = models.DateTimeField(null=True, blank=True, help_text="Marca cuándo se realizó la última limpieza de intentos antiguos")
+
+    class Meta:
+        db_table = 'api_login_attempt'
+        indexes = [
+            models.Index(fields=['identifier', 'created_at']),
+            models.Index(fields=['ip_address', 'created_at']),
+            models.Index(fields=['last_cleanup_at']),
+        ]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        status = 'OK' if self.successful else 'FAIL'
+        return f"{self.identifier} ({status}) @ {self.created_at:%Y-%m-%d %H:%M:%S}"
+
+# NOTE: Enforcing a DB-level unique constraint on the built-in User.email field
+# directly requires a custom migration altering auth_user.
+# Because we are still using Django's default User model, we will generate
+# a migration manually (outside this models file) that executes:
+#   migrations.RunSQL(
+#       sql="CREATE UNIQUE INDEX IF NOT EXISTS auth_user_email_ci_unique ON auth_user (LOWER(email));",
+#       reverse_sql="DROP INDEX IF EXISTS auth_user_email_ci_unique;"
+#   )
+# This gives case-insensitive uniqueness without replacing the User model.
