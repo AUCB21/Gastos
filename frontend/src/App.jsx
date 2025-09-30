@@ -11,6 +11,7 @@ import MediosPagoList from "./features/medios-pago/pages/MediosPagoList";
 import MediosPagoDetail from "./features/medios-pago/pages/MediosPagoDetail";
 import NotFound from "./shared/pages/NotFound";
 import ProtectedRoute from "./shared/components/ProtectedRoute";
+import DemoBanner from "./shared/components/DemoBanner";
 import api from "./api";
 import { REFRESH_TOKEN } from "./constants";
 import "./styles/App.css";
@@ -55,6 +56,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
+        <DemoBanner />
         <Routes>
           <Route
             path="/"

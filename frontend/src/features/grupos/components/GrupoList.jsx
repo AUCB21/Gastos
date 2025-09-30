@@ -83,7 +83,7 @@ const GrupoList = ({ onCreateNew, onEditGrupo, onViewGrupo }) => {
           onClick={() => onCreateNew?.()}
           className={`${getButtonClass('formPrimary', 'form')} gap-2`}
         >
-          <Plus className="w-4 h-4" />+ Nuevo Grupo
+          <Plus className="w-4 h-4" />Nuevo Grupo
         </button>
       </div>
 
