@@ -63,7 +63,7 @@ const MediosPago = ({ medioPago, onDelete, onEdit }) => {
       <div className="flex items-center space-x-2">
         <button 
           onClick={() => onEdit(medioPago.id)}
-          className="text-blue-500 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          className="text-emerald-500 hover:text-emerald-700 p-2 rounded-lg hover:bg-emerald-50 transition-colors duration-200"
           title="Editar medio de pago"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

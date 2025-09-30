@@ -1,24 +1,24 @@
 import { useNavigate } from "react-router-dom";
-import GastoForm from "../components/forms/GastoForm"; 
-import api from "../api"; 
-import { ACCESS_TOKEN } from "../constants";
-import LayoutWrapper from "../components/wrappers/LayoutWrapper";
-import { useUserData } from "../hooks/useUserData";
+import MPForm from "../components/MPForm"; 
+import api from "../../../api"; 
+import { ACCESS_TOKEN } from "../../../constants";
+import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { useUserData } from "../../../hooks/useUserData";
 
-const GastoPage = () => {
+const MediosPagoPage = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 
-  const handleCreateGasto = async (formData) => {
+  const handleCreateMedioPago = async (formData) => {
     try {
       const token = localStorage.getItem(ACCESS_TOKEN);
       console.log("Current token:", token ? "Present" : "Missing");
-      const response = await api.post("/api/gastos/", formData);
+      const response = await api.post("/api/medios-pago/", formData);
       if (response.status === 201) {
-        alert("Gasto creado exitosamente.");
+        alert("Medio de Pago creado exitosamente.");
       }
     } catch (error) {
-      console.error("Error creating gasto:", error);
+      console.error("Error creating medio de pago:", error);
       console.error("Error status:", error.response?.status);
       console.error("Full error response:", error.response);
       console.error("Error details:", error.response?.data);
@@ -53,13 +53,13 @@ const GastoPage = () => {
   return (
     <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false}>
       <div className="max-w-2xl mx-auto">
-        {/* Gasto Form */}
+        {/* MedioPago Form */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <GastoForm onGastoCreated={handleCreateGasto} />
+          <MPForm onMPCreated={handleCreateMedioPago} />
         </div>
       </div>
     </LayoutWrapper>
   );
 };
 
-export default GastoPage;
+export default MediosPagoPage;

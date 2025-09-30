@@ -14,6 +14,7 @@ import {
   DollarSign,
   Tag,
   User,
+  Users,
   TrendingUp,
   PieChart,
 } from "lucide-react";
@@ -36,6 +37,29 @@ const Sidebar = ({
       icon: Home,
       path: "/",
       description: "Dashboard principal",
+    },
+    {
+      id: "grupos",
+      label: "Grupos",
+      icon: Users,
+      path: "/grupos",
+      description: "Gestionar grupos",
+      children: [
+        {
+          id: "grupos-list",
+          label: "Ver Grupos",
+          icon: List,
+          path: "/grupos",
+          description: "Lista de grupos",
+        },
+        {
+          id: "grupos-add",
+          label: "Crear Grupo",
+          icon: Plus,
+          path: "/grupos/create",
+          description: "Nuevo grupo",
+        },
+      ],
     },
     {
       id: "gastos",
@@ -87,6 +111,32 @@ const Sidebar = ({
 
   // Group by options for different pages
   const groupByOptions = {
+    grupos: [
+      {
+        id: "tipo",
+        label: "Por Tipo",
+        icon: Users,
+        description: "Agrupar por tipo de grupo",
+      },
+      {
+        id: "estado",
+        label: "Por Estado",
+        icon: TrendingUp,
+        description: "Agrupar por estado activo/inactivo",
+      },
+      {
+        id: "fecha",
+        label: "Por Fecha",
+        icon: Calendar,
+        description: "Agrupar por fecha de creación",
+      },
+      {
+        id: "miembros",
+        label: "Por Miembros",
+        icon: User,
+        description: "Agrupar por cantidad de miembros",
+      },
+    ],
     gastos: [
       {
         id: "categoria",
@@ -186,7 +236,7 @@ const Sidebar = ({
       {/* Backdrop for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}

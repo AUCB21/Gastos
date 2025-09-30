@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import api from "../../../api";
 import MediosPago from "../components/MediosPago";
-import LayoutWrapper from "../components/wrappers/LayoutWrapper";
-import { useUserData } from "../hooks/useUserData";
-import delayedNavigate from "../hooks/delayedNavigate";
+import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { useUserData } from "../../../hooks/useUserData";
+import delayedNavigate from "../../../hooks/delayedNavigate";
 
 const MediosPagoList = () => {
   const [mediosPago, setMediosPago] = useState([]);
@@ -55,7 +55,7 @@ const MediosPagoList = () => {
             TD: "Tarjetas de Débito",
             MP: "Mercado Pago",
             EF: "Efectivo",
-            TR: "Transferencia",
+            TR: "Transferencia"
           };
           groupKey = tipoNames[medio.tipo] || medio.tipo || "Sin tipo";
           break;
@@ -171,7 +171,7 @@ const MediosPagoList = () => {
           </div>
           <button
             onClick={() => delayedNavigate(navigate, "/medios-pago/add", 250)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl shadow transition-colors"
           >
             + Crear Nuevo Medio
           </button>

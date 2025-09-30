@@ -307,6 +307,13 @@ const NavBar = ({ user }) => {
                     </a>
 
                     <a
+                      href="/grupos"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Grupos
+                    </a>
+
+                    <a
                       href="/gastos"
                       className="block px-4 py-2 text-sm  text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
@@ -317,12 +324,6 @@ const NavBar = ({ user }) => {
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       Medios Pago
-                    </a>
-                    <a
-                      href="/grupos"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Grupos
                     </a>
                   </div>
                 )}

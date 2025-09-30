@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, DollarSign, User, Tag, MessageSquare, CreditCard, Edit, ArrowLeft } from 'lucide-react';
-import api from '../api';
-import LayoutWrapper from '../components/wrappers/LayoutWrapper';
-import { useUserData } from '../hooks/useUserData';
-import { formatLocalDate } from '../utils/dateUtils';
-import delayedNavigate from '../hooks/delayedNavigate';
+import api from '../../../api';
+import LayoutWrapper from '../../../shared/components/wrappers/LayoutWrapper';
+import { useUserData } from '../../../hooks/useUserData';
+import { formatLocalDate } from '../../../utils/dateUtils';
+import delayedNavigate from '../../../hooks/delayedNavigate';
+import { getButtonClass } from '../../../utils/colorSystem';
 
 const GastoDetail = () => {
   const { id } = useParams();
@@ -100,7 +101,7 @@ const GastoDetail = () => {
         
         <button
           onClick={() => setShowEditModal(true)}
-          className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className={`${getButtonClass('formPrimary', 'form')} flex items-center px-4 py-2`}
         >
           <Edit className="w-4 h-4 mr-2" />
           Editar
@@ -188,8 +189,8 @@ const GastoDetail = () => {
 
       {/* Edit Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Editar Gasto</h2>
               <button
@@ -244,7 +245,7 @@ const GastoDetail = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className={`${getButtonClass('formPrimary', 'form')} flex-1 px-4 py-2`}
                 >
                   Guardar
                 </button>
