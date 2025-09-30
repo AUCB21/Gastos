@@ -153,6 +153,28 @@ const LoginForm = ({route, method}) => {
     }
   }
 
+  const handleDemoMode = async () => {
+    setLoading(true);
+    try {
+      const res = await api.post(route, {
+        username: "demo",
+        password: "demo_user123"
+      });
+      
+      localStorage.setItem(ACCESS_TOKEN, res.data.access);
+      localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+      localStorage.setItem('demo_mode', 'true');
+      navigate("/");
+    } catch (error) {
+      console.error('Demo login error:', error);
+      setErrors({ 
+        submit: "Error al iniciar modo demo. Intenta nuevamente."
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={`min-h-screen flex items-center justify-center ${colors.background} px-6`}>
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-gray-50 to-green-50 opacity-90" />
@@ -355,6 +377,24 @@ const LoginForm = ({route, method}) => {
               type
             )}
           </button>
+
+          {isLogin && (
+            <button
+              type="button"
+              onClick={handleDemoMode}
+              disabled={loading}
+              className="w-full mt-3 rounded-xl py-3 text-sm font-semibold shadow-lg bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Iniciando demo...
+                </div>
+              ) : (
+                "🎯 Ver Demo"
+              )}
+            </button>
+          )}
 
           {isLogin && (
             <div className="mt-4 text-center">
