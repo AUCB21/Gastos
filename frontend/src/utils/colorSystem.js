@@ -110,7 +110,7 @@ export const componentStyles = {
   
   // Forms (minimal approach, no double backgrounds)
   form: {
-    container: `bg-white rounded-xl p-8 shadow-lg`, // Single background
+    container: `bg-white rounded-xl p-8 shadow-sm border border-gray-200`, // Lighter shadow, subtle border
     input: `w-full px-4 py-3 ${colors.border} border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all`,
     inputError: `w-full px-4 py-3 ${colors.alert.border} ${colors.alert.bgLight} border rounded-lg focus:ring-2 focus:ring-red-500/20 outline-none transition-all`,
     label: `block text-sm font-medium ${colors.textMuted} mb-2`,

@@ -10,7 +10,7 @@ import {
   Receipt,
   CreditCard,
 } from "lucide-react";
-import { getButtonClass } from "../../../utils/colorSystem";
+import { getButtonClass, componentStyles } from "../../../utils/colorSystem";
 
 // Currency enum
 const MONEDAS = {
@@ -148,23 +148,21 @@ const GastoForm = ({ onGastoCreated }) => {
   };
 
   return (
-    <div className="p-4">
-      <div className="max-w-xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-dodger-blue-100 rounded-full mb-3">
-              <Receipt className="w-6 h-6 text-dodger-blue-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              Crea un nuevo Gasto
-            </h2>
-            <p className="text-gray-600 text-sm">
-              Complete los campos para registrar su gasto
-            </p>
-          </div>
+    <div>
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-dodger-blue-100 rounded-full mb-3">
+          <Receipt className="w-6 h-6 text-dodger-blue-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">
+          Crea un nuevo Gasto
+        </h2>
+        <p className="text-gray-600 text-sm">
+          Complete los campos para registrar su gasto
+        </p>
+      </div>
 
-          <div className="space-y-4">
+      <div className="space-y-4">
             {/* Amount and Currency Row */}
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -432,9 +430,7 @@ const GastoForm = ({ onGastoCreated }) => {
           <div className="mt-4 text-center text-xs text-gray-500">
             * Campos obligatorios
           </div>
-        </div>
       </div>
-    </div>
   );
 };
 

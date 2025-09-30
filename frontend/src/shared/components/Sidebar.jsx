@@ -18,6 +18,7 @@ import {
   TrendingUp,
   PieChart,
 } from "lucide-react";
+import { componentStyles } from '../../utils/colorSystem';
 
 const Sidebar = ({
   isOpen,
@@ -236,7 +237,7 @@ const Sidebar = ({
       {/* Backdrop for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+          className={componentStyles.modal.overlay.replace('z-50', 'z-40')}
           onClick={() => setIsOpen(false)}
         />
       )}

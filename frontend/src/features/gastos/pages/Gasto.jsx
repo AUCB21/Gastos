@@ -4,6 +4,7 @@ import api from "../../../api";
 import { ACCESS_TOKEN } from "../../../constants";
 import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
 import { useUserData } from "../../../hooks/useUserData";
+import { componentStyles } from "../../../utils/colorSystem";
 
 const GastoPage = () => {
   const { user } = useUserData();
@@ -54,7 +55,7 @@ const GastoPage = () => {
     <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false}>
       <div className="max-w-2xl mx-auto">
         {/* Gasto Form */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className={componentStyles.form.container}>
           <GastoForm onGastoCreated={handleCreateGasto} />
         </div>
       </div>

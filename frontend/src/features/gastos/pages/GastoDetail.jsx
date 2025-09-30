@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, DollarSign, User, Tag, MessageSquare, CreditCard, Edit, ArrowLeft } from 'lucide-react';
 import api from '../../../api';
 import LayoutWrapper from '../../../shared/components/wrappers/LayoutWrapper';
+import { EditModal } from '../../../shared/components/Modal';
 import { useUserData } from '../../../hooks/useUserData';
 import { formatLocalDate } from '../../../utils/dateUtils';
 import delayedNavigate from '../../../hooks/delayedNavigate';
@@ -188,20 +189,12 @@ const GastoDetail = () => {
       </div>
 
       {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Editar Gasto</h2>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleEditSubmit} className="space-y-4">
+      <EditModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleEditSubmit}
+        title="Editar Gasto"
+      >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Monto</label>
                 <input
@@ -234,26 +227,7 @@ const GastoDetail = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className={`${getButtonClass('formPrimary', 'form')} flex-1 px-4 py-2`}
-                >
-                  Guardar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+        </EditModal>
     </div>
   );
 
