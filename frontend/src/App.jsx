@@ -1,23 +1,23 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import GastoPage from "./pages/Gasto";
-import GastosList from "./pages/GastosList";
-import GastoDetail from "./pages/GastoDetail";
-import MediosPagoPage from "./pages/MediosPago";
-import MediosPagoList from "./pages/MediosPagoList";
-import MediosPagoDetail from "./pages/MediosPagoDetail";
-import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./shared/pages/Login";
+import Register from "./shared/pages/Register";
+import Home from "./shared/pages/Home";
+import GastoPage from "./features/gastos/pages/Gasto";
+import GastosList from "./features/gastos/pages/GastosList";
+import GastoDetail from "./features/gastos/pages/GastoDetail";
+import MediosPagoPage from "./features/medios-pago/pages/MediosPago";
+import MediosPagoList from "./features/medios-pago/pages/MediosPagoList";
+import MediosPagoDetail from "./features/medios-pago/pages/MediosPagoDetail";
+import NotFound from "./shared/pages/NotFound";
+import ProtectedRoute from "./shared/components/ProtectedRoute";
 import api from "./api";
 import { REFRESH_TOKEN } from "./constants";
 import "./styles/App.css";
-import GruposPage from "./pages/GruposPage";
-import CreateGrupoPage from "./pages/CreateGrupoPage";
-import GrupoDetailPage from "./pages/GrupoDetailPage";
-import EditGrupoPage from "./pages/EditGrupoPage";
+import GruposPage from "./features/grupos/pages/GruposPage";
+import CreateGrupoPage from "./features/grupos/pages/CreateGrupoPage";
+import GrupoDetailPage from "./features/grupos/pages/GrupoDetailPage";
+import EditGrupoPage from "./features/grupos/pages/EditGrupoPage";
 
 const Logout = () => {
   useEffect(() => {
