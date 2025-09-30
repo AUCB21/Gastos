@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import MPForm from "../components/MPForm"; 
-import api from "../../../api"; 
+import MPForm from "../components/MPForm";
+import api from "../../../api";
 import { ACCESS_TOKEN } from "../../../constants";
 import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
 import { useUserData } from "../../../hooks/useUserData";
-
-const MediosPagoPage = () => {
+import { componentStyles } from "../../../utils/colorSystem";const MediosPagoPage = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 
@@ -54,7 +53,7 @@ const MediosPagoPage = () => {
     <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false}>
       <div className="max-w-2xl mx-auto">
         {/* MedioPago Form */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className={componentStyles.form.container}>
           <MPForm onMPCreated={handleCreateMedioPago} />
         </div>
       </div>

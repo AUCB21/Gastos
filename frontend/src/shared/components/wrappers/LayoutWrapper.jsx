@@ -43,7 +43,7 @@ const LayoutWrapper = ({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
       {showSidebar && (
         <Sidebar

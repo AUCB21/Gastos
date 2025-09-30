@@ -78,19 +78,17 @@ const MPForm = ({ onMPCreated }) => {
   };
 
   return (
-    <div className="p-4">
-      <div className="max-w-xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
-              <CreditCard className="w-6 h-6 text-green-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Crea un medio de pago</h2>
-            <p className="text-gray-600 text-sm">Complete los campos para agregar un medio de pago</p>
-          </div>
+    <div>
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+          <CreditCard className="w-6 h-6 text-green-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">Crea un medio de pago</h2>
+        <p className="text-gray-600 text-sm">Complete los campos para agregar un medio de pago</p>
+      </div>
 
-          <div className="space-y-4">
+      <div className="space-y-4">
             {/* Entidad Emisora y Tipo Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
@@ -208,9 +206,7 @@ const MPForm = ({ onMPCreated }) => {
           <div className="mt-4 text-center text-xs text-gray-500">
             * Campos obligatorios
           </div>
-        </div>
       </div>
-    </div>
   );
 };
 

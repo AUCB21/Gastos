@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CreditCard, Building, Tag, MessageSquare, Edit, ArrowLeft } from 'lucide-react';
 import api from '../../../api';
 import LayoutWrapper from '../../../shared/components/wrappers/LayoutWrapper';
+import { EditModal } from '../../../shared/components/Modal';
 import { useUserData } from '../../../hooks/useUserData';
 import delayedNavigate from '../../../hooks/delayedNavigate';
 
@@ -193,20 +194,12 @@ const MediosPagoDetail = () => {
       </div>
 
       {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Editar Medio de Pago</h2>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleEditSubmit} className="space-y-4">
+      <EditModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleEditSubmit}
+        title="Editar Medio de Pago"
+      >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Ente Emisor</label>
                 <input
@@ -257,26 +250,7 @@ const MediosPagoDetail = () => {
                   placeholder="Información adicional"
                 />
               </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
-                >
-                  Guardar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+        </EditModal>
     </div>
   );
 
