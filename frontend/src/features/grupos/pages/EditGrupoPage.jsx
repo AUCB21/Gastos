@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../api";
+import { getButtonClass } from "../../../utils/colorSystem";
 import GrupoForm from "../components/GrupoForm";
 import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
 import { useUserData } from "../../../hooks/useUserData";
@@ -68,7 +69,7 @@ const EditGrupoPage = () => {
           </p>
           <button
             onClick={() => navigate('/grupos')}
-            className="bg-dodger-blue-600 hover:bg-dodger-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            className={getButtonClass('primary', 'regular')}
           >
             Volver a Grupos
           </button>

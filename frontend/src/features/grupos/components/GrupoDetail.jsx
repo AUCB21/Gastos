@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../api";
+import { getButtonClass, getCardClass, getTextClass, getStatusClass, colors } from "../../../utils/colorSystem";
 import {
   Users,
   Calendar,
@@ -32,7 +33,8 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
     if (grupoId) {
       loadGrupoDetail();
       loadMembers();
-      generateInviteLink();
+      // Don't auto-generate invite link to avoid 400 errors
+      // generateInviteLink();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [grupoId]);
@@ -72,6 +74,7 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
       setInviteLink(`${baseUrl}/join-grupo/${token}`);
     } catch (error) {
       console.error("Error generating invite link:", error);
+      // Don't set error state, just log it - invite links are optional
     }
   };
 
@@ -153,7 +156,7 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="flex items-center gap-2 text-gray-500">
+        <div className={`flex items-center gap-2 ${getTextClass('light')}`}>
           <Loader className="w-5 h-5 animate-spin" />
           <span>Cargando grupo...</span>
         </div>
@@ -164,18 +167,18 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
   if (error || !grupo) {
     return (
       <div className="text-center py-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-          <AlertCircle className="w-8 h-8 text-red-600" />
+        <div className={`inline-flex items-center justify-center w-16 h-16 ${colors.alert.bgLight} rounded-full mb-4`}>
+          <AlertCircle className={`w-8 h-8 ${colors.alert.textDark}`} />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className={`text-lg font-medium ${colors.text} mb-2`}>
           Error al cargar el grupo
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className={`${colors.textMuted} mb-6`}>
           {error || "Grupo no encontrado"}
         </p>
         <button
           onClick={onBack}
-          className="bg-dodger-blue-600 hover:bg-dodger-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          className={getButtonClass('primary')}
         >
           Volver
         </button>
@@ -195,20 +198,20 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className={`p-2 ${colors.textLight} hover:${getTextClass('default')} transition-colors`}
             title="Volver"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{grupo.name}</h1>
-            <p className="text-gray-600">{getGrupoTypeName(grupo.grupo_type)}</p>
+            <h1 className={`text-2xl font-bold ${colors.text}`}>{grupo.name}</h1>
+            <p className={getTextClass('muted')}>{getGrupoTypeName(grupo.grupo_type)}</p>
           </div>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => onEdit?.(grupo)}
-            className="flex items-center gap-2 px-4 py-2 text-dodger-blue-600 border border-dodger-blue-600 rounded-lg hover:bg-dodger-blue-50 transition-colors"
+            className={getButtonClass('secondary')}
           >
             <Edit className="w-4 h-4" />
             Editar
@@ -218,13 +221,13 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
 
       {/* Status Alerts */}
       {!grupo.is_active && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center gap-2 text-gray-700">
+        <div className={getCardClass('info')}>
           <AlertCircle className="w-5 h-5" />
           <span>Este grupo está inactivo</span>
         </div>
       )}
       {isExpired && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-700">
+        <div className={`flex items-center ${getStatusClass('expirado')}`}>
           <AlertCircle className="w-5 h-5" />
           <span>Este grupo ha expirado el {formatDate(grupo.end_date)}</span>
         </div>
@@ -237,32 +240,32 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
       )}
 
       {/* Main Info */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className={`${getCardClass('default')} shadow-md`}>
         <div className="grid md:grid-cols-2 gap-6">
           {/* Left Column */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="text-dodger-blue-600">
+              <div className={colors.primary.text}>
                 {getGrupoTypeIcon(grupo.grupo_type)}
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Tipo de Grupo</h3>
-                <p className="text-gray-600">{getGrupoTypeName(grupo.grupo_type)}</p>
+                <h3 className={`font-medium ${colors.text}`}>Tipo de Grupo</h3>
+                <p className={getTextClass('muted')}>{getGrupoTypeName(grupo.grupo_type)}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <DollarSign className="w-5 h-5 text-green-600" />
+              <DollarSign className={`w-5 h-5 ${colors.success.text}`} />
               <div>
-                <h3 className="font-medium text-gray-900">Moneda</h3>
-                <p className="text-gray-600">{grupo.default_currency}</p>
+                <h3 className={`font-medium ${colors.text}`}>Moneda</h3>
+                <p className={getTextClass('muted')}>{grupo.default_currency}</p>
               </div>
             </div>
 
             {grupo.description && (
               <div>
-                <h3 className="font-medium text-gray-900 mb-1">Descripción</h3>
-                <p className="text-gray-600">{grupo.description}</p>
+                <h3 className={`font-medium ${colors.text} mb-1`}>Descripción</h3>
+                <p className={getTextClass('muted')}>{grupo.description}</p>
               </div>
             )}
           </div>
@@ -271,13 +274,13 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
           <div className="space-y-4">
             {(grupo.start_date || grupo.end_date) && (
               <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-purple-600" />
+                <Calendar className={`w-5 h-5 ${colors.primary.text}`} />
                 <div>
-                  <h3 className="font-medium text-gray-900">Período</h3>
-                  <div className="text-gray-600 text-sm space-y-1">
+                  <h3 className={`font-medium ${colors.text}`}>Período</h3>
+                  <div className={`${getTextClass('muted')} text-sm space-y-1`}>
                     {grupo.start_date && <p>Inicio: {formatDate(grupo.start_date)}</p>}
                     {grupo.end_date ? (
-                      <p className={isExpired ? "text-red-600" : isExpiringSoon ? "text-yellow-600" : ""}>
+                      <p className={isExpired ? colors.alert.textDark : isExpiringSoon ? "text-yellow-600" : ""}>
                         Fin: {formatDate(grupo.end_date)}
                         {isExpired && " (Expirado)"}
                         {isExpiringSoon && " (Por expirar)"}
@@ -291,10 +294,10 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
             )}
 
             <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-gray-600" />
+              <Settings className={`w-5 h-5 ${getTextClass('muted')}`} />
               <div>
-                <h3 className="font-medium text-gray-900">Configuración</h3>
-                <div className="text-gray-600 text-sm space-y-1">
+                <h3 className={`font-medium ${colors.text}`}>Configuración</h3>
+                <div className={`${getTextClass('muted')} text-sm space-y-1`}>
                   <p>Miembros: {grupo.allow_new_members ? "Permitidos" : "Cerrado"}</p>
                   <p>Estado: {grupo.is_active ? "Activo" : "Inactivo"}</p>
                 </div>
@@ -302,10 +305,10 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
             </div>
 
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-gray-600" />
+              <Clock className={`w-5 h-5 ${getTextClass('muted')}`} />
               <div>
-                <h3 className="font-medium text-gray-900">Creado</h3>
-                <p className="text-gray-600 text-sm">{formatDate(grupo.created_at)}</p>
+                <h3 className={`font-medium ${colors.text}`}>Creado</h3>
+                <p className={`${getTextClass('muted')} text-sm`}>{formatDate(grupo.created_at)}</p>
               </div>
             </div>
           </div>
@@ -314,36 +317,36 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border text-center">
-          <div className="text-2xl font-bold text-dodger-blue-600">{grupo.member_count || 0}</div>
-          <div className="text-sm text-gray-600">Miembros</div>
+        <div className={getCardClass('stats')}>
+          <div className={`text-2xl font-bold ${colors.primary.text}`}>{grupo.member_count || 0}</div>
+          <div className={`text-sm ${getTextClass('muted')}`}>Miembros</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border text-center">
-          <div className="text-2xl font-bold text-green-600">
+        <div className={getCardClass('stats')}>
+          <div className={`text-2xl font-bold ${colors.success.text}`}>
             {grupo.default_currency} {grupo.total_expenses?.toLocaleString() || 0}
           </div>
-          <div className="text-sm text-gray-600">Gastos Total</div>
+          <div className={`text-sm ${getTextClass('muted')}`}>Gastos Total</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border text-center">
-          <div className="text-2xl font-bold text-purple-600">0</div>
-          <div className="text-sm text-gray-600">Pendientes</div>
+        <div className={getCardClass('stats')}>
+          <div className={`text-2xl font-bold ${colors.primary.text}`}>0</div>
+          <div className={`text-sm ${getTextClass('muted')}`}>Pendientes</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border text-center">
-          <div className="text-2xl font-bold text-orange-600">0</div>
-          <div className="text-sm text-gray-600">Invitaciones</div>
+        <div className={getCardClass('stats')}>
+          <div className={`text-2xl font-bold ${colors.warning.text}`}>0</div>
+          <div className={`text-sm ${getTextClass('muted')}`}>Invitaciones</div>
         </div>
       </div>
 
       {/* Members */}
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+      <div className={`${getCardClass('default')} shadow-sm`}>
+        <div className={`p-4 ${colors.border} border-b flex items-center justify-between`}>
+          <h2 className={`text-lg font-semibold ${colors.text} flex items-center gap-2`}>
             <Users className="w-5 h-5" />
             Miembros ({members.length})
           </h2>
           <button
             onClick={() => setShowInviteForm(!showInviteForm)}
-            className="flex items-center gap-2 px-3 py-1 text-dodger-blue-600 hover:bg-dodger-blue-50 rounded-lg transition-colors"
+            className={`${getButtonClass('secondary')} gap-2`}
           >
             <UserPlus className="w-4 h-4" />
             Invitar
@@ -352,25 +355,25 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
         
         {/* Invite Form */}
         {showInviteForm && (
-          <div className="p-4 bg-gray-50 border-b border-gray-200">
+          <div className={`p-4 ${colors.neutral.bg} border-b ${colors.border}`}>
             <div className="flex gap-2">
               <input
                 type="email"
                 placeholder="Email del nuevo miembro"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <button
                 onClick={sendInvite}
                 disabled={inviteLoading || !inviteEmail.trim()}
-                className="px-4 py-2 bg-dodger-blue-600 text-white rounded-lg hover:bg-dodger-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className={`${getButtonClass('primary')} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {inviteLoading ? "Enviando..." : "Enviar"}
               </button>
               <button
                 onClick={() => setShowInviteForm(false)}
-                className="px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className={getButtonClass('secondary')}
               >
                 Cancelar
               </button>
@@ -381,31 +384,31 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
         {/* Members List */}
         <div className="divide-y divide-gray-200">
           {members.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+            <div className={`p-8 text-center ${getTextClass('light')}`}>
+              <Users className={`w-12 h-12 ${getTextClass('light')} mx-auto mb-2`} />
               <p>No hay miembros cargados</p>
             </div>
           ) : (
             members.map((member) => (
               <div key={member.id} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-dodger-blue-100 rounded-full flex items-center justify-center">
-                    <Users className="w-5 h-5 text-dodger-blue-600" />
+                  <div className={`w-10 h-10 ${colors.primary.bgLight} rounded-full flex items-center justify-center`}>
+                    <Users className={`w-5 h-5 ${colors.primary.text}`} />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900">
+                    <div className={`font-medium ${colors.text}`}>
                       {member.user_info?.username || "Usuario"}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className={`text-sm ${getTextClass('muted')}`}>
                       {member.user_info?.email || "Sin email"}
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className={`text-sm font-medium ${colors.text}`}>
                     {getRoleName(member.role)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className={`text-xs ${getTextClass('light')}`}>
                     {member.is_active ? "Activo" : "Inactivo"}
                   </div>
                 </div>
@@ -415,40 +418,59 @@ const GrupoDetail = ({ grupoId, onBack, onEdit }) => {
         </div>
       </div>
 
-      {/* Invite Link */}
-      {inviteLink && (
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Share className="w-5 h-5" />
-            Enlace de Invitación
-          </h2>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={inviteLink}
-              readOnly
-              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm"
-            />
+      {/* Invite Link Generation */}
+      <div className={getCardClass('default')}>
+        <h2 className={`text-lg font-semibold ${getTextClass('default')} mb-3 flex items-center gap-2`}>
+          <Share className="w-5 h-5" />
+          Compartir Grupo
+        </h2>
+        {!inviteLink ? (
+          <button
+            onClick={generateInviteLink}
+            className={`${getButtonClass('primary', 'regular')} gap-2`}
+          >
+            <Share className="w-4 h-4" />
+            Generar Enlace de Invitación
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={inviteLink}
+                readOnly
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm"
+              />
+              <button
+                onClick={copyInviteLink}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center justify-center ${
+                  copySuccess
+                    ? "bg-green-500 text-white"
+                    : `${colors.primary.bg} text-white hover:${colors.primary.bgHover}`
+                }`}
+              >
+                {copySuccess ? (
+                  <CheckCircle className="w-4 h-4" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
+            </div>
             <button
-              onClick={copyInviteLink}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                copySuccess
-                  ? "bg-green-500 text-white"
-                  : "bg-dodger-blue-600 text-white hover:bg-dodger-blue-700"
-              }`}
+              onClick={generateInviteLink}
+              className={`${getButtonClass('minimal')} text-sm`}
             >
-              {copySuccess ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                <Copy className="w-4 h-4" />
-              )}
+              Generar Nuevo Enlace
             </button>
+            <p className={`text-xs ${getTextClass('light')}`}>
+              Comparte este enlace para que otros puedan unirse al grupo
+            </p>
           </div>
-          <p className="mt-2 text-xs text-gray-500">
-            Comparte este enlace para que otros puedan unirse al grupo
-          </p>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Old invite link section - remove this */}
+
     </div>
   );
 };

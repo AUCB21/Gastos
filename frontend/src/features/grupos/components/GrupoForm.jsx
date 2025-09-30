@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import api from "../../../api";
+import { getButtonClass, getTextClass, colors, componentStyles } from "../../../utils/colorSystem";
 import {
   Calendar,
   Users,
@@ -208,24 +209,24 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
               <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
                 <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <h2 className={`text-2xl font-bold ${getTextClass('default')} mb-1`}>
                 ¡Grupo Creado Exitosamente!
               </h2>
-              <p className="text-gray-600 text-sm">
+              <p className={`${getTextClass('muted')} text-sm`}>
                 "{createdGrupo.name}" está listo para usar
               </p>
             </div>
 
             {/* Group Info */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className={`${colors.extra.bg} rounded-lg p-4 mb-6`}>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-gray-700">Tipo:</span>
-                  <p className="text-gray-900">{GRUPO_TYPES[createdGrupo.grupo_type]?.name}</p>
+                  <span className={`font-medium ${getTextClass('default')}`}>Tipo:</span>
+                  <p className={getTextClass('default')}>{GRUPO_TYPES[createdGrupo.grupo_type]?.name}</p>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-700">Moneda:</span>
-                  <p className="text-gray-900">{createdGrupo.default_currency}</p>
+                  <span className={`font-medium ${getTextClass('default')}`}>Moneda:</span>
+                  <p className={getTextClass('default')}>{createdGrupo.default_currency}</p>
                 </div>
               </div>
             </div>
@@ -233,7 +234,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
             {/* Invitation Link */}
             {invitationLink && (
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={componentStyles.form.label}>
                   <Link className="inline w-4 h-4 mr-1" />
                   Enlace de Invitación
                 </label>
@@ -242,14 +243,14 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                     type="text"
                     value={invitationLink}
                     readOnly
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-l-lg bg-gray-50 text-sm"
+                    className={`flex-1 px-3 py-2 border ${colors.border} rounded-l-lg ${colors.neutral.bg} text-sm`}
                   />
                   <button
                     onClick={copyInvitationLink}
                     className={`px-4 py-2 rounded-r-lg border border-l-0 transition-colors ${
                       copySuccess
                         ? "bg-green-500 text-white border-green-500"
-                        : "bg-dodger-blue-600 text-white border-dodger-blue-600 hover:bg-dodger-blue-700"
+                        : `${getButtonClass('primary', 'regular')} rounded-none rounded-r-lg border-l-0`
                     }`}
                   >
                     {copySuccess ? (
@@ -259,7 +260,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                     )}
                   </button>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className={`mt-1 text-xs ${getTextClass('muted')}`}>
                   Comparte este enlace para invitar miembros al grupo
                 </p>
               </div>
@@ -272,13 +273,13 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                   setCreatedGrupo(null);
                   setInvitationLink("");
                 }}
-                className="flex-1 bg-dodger-blue-600 hover:bg-dodger-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                className={getButtonClass('primary', 'form')}
               >
                 Crear Otro Grupo
               </button>
               <button
                 onClick={() => window.location.href = '/grupos'}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+                className={getButtonClass('secondary', 'form')}
               >
                 Ver Mis Grupos
               </button>
@@ -295,13 +296,13 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
         <div className="bg-white rounded-xl shadow-lg p-6">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-dodger-blue-100 rounded-full mb-3">
-              <Users className="w-6 h-6 text-dodger-blue-600" />
+            <div className={`inline-flex items-center justify-center w-12 h-12 ${colors.primary.bg} rounded-full mb-3`}>
+              <Users className={`w-6 h-6 ${colors.primary.text}`} />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            <h2 className={`text-2xl font-bold ${getTextClass('default')} mb-1`}>
               {isEditing ? "Editar Grupo" : "Crear Nuevo Grupo"}
             </h2>
-            <p className="text-gray-600 text-sm">
+            <p className={`${getTextClass('muted')} text-sm`}>
               {isEditing ? "Modifica los datos del grupo" : "Complete los campos para crear su grupo"}
             </p>
           </div>
@@ -309,7 +310,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Group Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={componentStyles.form.label}>
                 <Users className="inline w-4 h-4 mr-1" />
                 Nombre del Grupo *
               </label>
@@ -319,8 +320,8 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                 value={formData.name}
                 onChange={handleInputChange}
                 maxLength={200}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500 transition-colors ${
-                  errors.name ? "border-red-300 bg-red-50" : "border-gray-200"
+                className={`${componentStyles.form.input} ${
+                  errors.name ? "border-red-300 bg-red-50" : ""
                 }`}
                 placeholder="Mi Grupo de Gastos"
               />
@@ -335,15 +336,15 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
             {/* Group Type and Currency */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={componentStyles.form.label}>
                   Tipo de Grupo *
                 </label>
                 <select
                   name="grupo_type"
                   value={formData.grupo_type}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500 transition-colors ${
-                    errors.grupo_type ? "border-red-300 bg-red-50" : "border-gray-200"
+                  className={`${componentStyles.form.input} ${
+                    errors.grupo_type ? "border-red-300 bg-red-50" : ""
                   }`}
                 >
                   {Object.values(GRUPO_TYPES).map((type) => (
@@ -358,7 +359,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={componentStyles.form.label}>
                   <Globe className="inline w-4 h-4 mr-1" />
                   Moneda *
                 </label>
@@ -366,8 +367,8 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                   name="default_currency"
                   value={formData.default_currency}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500 transition-colors ${
-                    errors.default_currency ? "border-red-300 bg-red-50" : "border-gray-200"
+                  className={`${componentStyles.form.input} ${
+                    errors.default_currency ? "border-red-300 bg-red-50" : ""
                   }`}
                 >
                   {Object.values(CURRENCIES).map((currency) => (
@@ -384,7 +385,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={componentStyles.form.label}>
                 <MessageSquare className="inline w-4 h-4 mr-1" />
                 Descripción
               </label>
@@ -394,8 +395,8 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                 onChange={handleInputChange}
                 rows={3}
                 maxLength={500}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500 transition-colors resize-none ${
-                  errors.description ? "border-red-300 bg-red-50" : "border-gray-200"
+                className={`${componentStyles.form.input} resize-none ${
+                  errors.description ? "border-red-300 bg-red-50" : ""
                 }`}
                 placeholder="Describe el propósito del grupo (opcional)"
               />
@@ -409,7 +410,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
 
             {/* Date Range */}
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className={componentStyles.form.label}>
                 <Calendar className="inline w-4 h-4 mr-1" />
                 Período de Validez
               </label>
@@ -422,7 +423,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                     name="start_date"
                     value={formData.start_date}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500 transition-colors"
+                    className={componentStyles.form.input}
                   />
                 </div>
                 
@@ -434,8 +435,8 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                     value={formData.end_date}
                     onChange={handleInputChange}
                     disabled={formData.never_expires}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500 transition-colors ${
-                      formData.never_expires ? "bg-gray-100 text-gray-400" : "border-gray-200"
+                    className={`${componentStyles.form.input} ${
+                      formData.never_expires ? "bg-gray-100 text-gray-400" : ""
                     } ${
                       errors.end_date ? "border-red-300 bg-red-50" : ""
                     }`}
@@ -453,9 +454,9 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                   id="never_expires"
                   checked={formData.never_expires}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-dodger-blue-600 focus:ring-dodger-blue-500 border-gray-300 rounded"
+                  className={`h-4 w-4 ${colors.primary.text} focus:ring-1 focus:ring-blue-500 border-gray-300 rounded`}
                 />
-                <label htmlFor="never_expires" className="ml-2 text-sm text-gray-700">
+                <label htmlFor="never_expires" className={`ml-2 text-sm ${getTextClass('default')}`}>
                   Este grupo nunca expira
                 </label>
               </div>
@@ -463,7 +464,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
 
             {/* Settings */}
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className={componentStyles.form.label}>
                 <Settings className="inline w-4 h-4 mr-1" />
                 Configuración
               </label>
@@ -476,9 +477,9 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                     id="allow_new_members"
                     checked={formData.allow_new_members}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-dodger-blue-600 focus:ring-dodger-blue-500 border-gray-300 rounded"
+                    className={`h-4 w-4 ${colors.primary.text} focus:ring-1 focus:ring-blue-500 border-gray-300 rounded`}
                   />
-                  <label htmlFor="allow_new_members" className="ml-2 text-sm text-gray-700">
+                  <label htmlFor="allow_new_members" className={`ml-2 text-sm ${getTextClass('default')}`}>
                     Permitir que se unan nuevos miembros
                   </label>
                 </div>
@@ -490,9 +491,9 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
                     id="is_active"
                     checked={formData.is_active}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-dodger-blue-600 focus:ring-dodger-blue-500 border-gray-300 rounded"
+                    className={`h-4 w-4 ${colors.primary.text} focus:ring-1 focus:ring-blue-500 border-gray-300 rounded`}
                   />
-                  <label htmlFor="is_active" className="ml-2 text-sm text-gray-700">
+                  <label htmlFor="is_active" className={`ml-2 text-sm ${getTextClass('default')}`}>
                     Grupo activo
                   </label>
                 </div>
@@ -503,7 +504,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-dodger-blue-600 to-dodger-blue-700 hover:from-dodger-blue-700 hover:to-dodger-blue-800 text-white font-medium py-3 px-4 rounded-lg shadow-md transform transition-all duration-200 hover:scale-105 focus:ring-4 focus:ring-dodger-blue-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className={`w-full ${getButtonClass('primary', 'form')} disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -517,7 +518,7 @@ const GrupoForm = ({ onGrupoCreated, initialData = null }) => {
           </form>
 
           {/* Footer */}
-          <div className="mt-4 text-center text-xs text-gray-500">
+          <div className={`mt-4 text-center text-xs ${getTextClass('muted')}`}>
             * Campos obligatorios
           </div>
         </div>

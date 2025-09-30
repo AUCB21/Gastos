@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../api";
+import { getButtonClass, getTextClass, colors } from "../../../utils/colorSystem";
 import GrupoCard from "./GrupoCard";
 import { Plus, Search, Filter, Users, AlertCircle, Loader } from "lucide-react";
 
@@ -80,7 +81,7 @@ const GrupoList = ({ onCreateNew, onEditGrupo, onViewGrupo }) => {
         </div>
         <button
           onClick={() => onCreateNew?.()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition-colors flex items-center gap-2"
+          className={`${getButtonClass('formPrimary', 'form')} gap-2`}
         >
           <Plus className="w-4 h-4" />+ Nuevo Grupo
         </button>
@@ -90,28 +91,28 @@ const GrupoList = ({ onCreateNew, onEditGrupo, onViewGrupo }) => {
       {stats.total > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg shadow-sm ">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className={`text-2xl font-bold ${getTextClass('default')}`}>
               {stats.total}
             </div>
-            <div className="text-sm text-gray-600">Grupos Total</div>
+            <div className={`text-sm ${getTextClass('muted')}`}>Grupos Total</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm ">
-            <div className="text-2xl font-bold text-green-600">
+            <div className={`text-2xl font-bold ${colors.success.text}`}>
               {stats.active}
             </div>
-            <div className="text-sm text-gray-600">Activos</div>
+            <div className={`text-sm ${getTextClass('muted')}`}>Activos</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm ">
-            <div className="text-2xl font-bold text-dodger-blue-600">
+            <div className={`text-2xl font-bold ${colors.primary.text}`}>
               {stats.totalMembers}
             </div>
-            <div className="text-sm text-gray-600">Miembros</div>
+            <div className={`text-sm ${getTextClass('muted')}`}>Miembros</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm ">
-            <div className="text-2xl font-bold text-purple-600">
+            <div className={`text-2xl font-bold ${colors.primary.text}`}>
               $ {stats.totalExpenses.toLocaleString()}
             </div>
-            <div className="text-sm text-gray-600">Gastos Total</div>
+            <div className={`text-sm ${getTextClass('muted')}`}>Gastos Total</div>
           </div>
         </div>
       )}
@@ -122,13 +123,13 @@ const GrupoList = ({ onCreateNew, onEditGrupo, onViewGrupo }) => {
           {/* Search */}
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${getTextClass('light')} w-4 h-4`} />
               <input
                 type="text"
                 placeholder="Buscar grupos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -138,7 +139,7 @@ const GrupoList = ({ onCreateNew, onEditGrupo, onViewGrupo }) => {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Todos los tipos</option>
               <option value="trip">Viajes</option>
@@ -153,7 +154,7 @@ const GrupoList = ({ onCreateNew, onEditGrupo, onViewGrupo }) => {
             <select
               value={filterActive}
               onChange={(e) => setFilterActive(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Todos</option>
               <option value="active">Activos</option>
@@ -180,19 +181,19 @@ const GrupoList = ({ onCreateNew, onEditGrupo, onViewGrupo }) => {
       {/* Empty State */}
       {!loading && !error && grupos.length === 0 && (
         <div className="text-center py-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-            <Users className="w-8 h-8 text-gray-400" />
+          <div className={`inline-flex items-center justify-center w-16 h-16 ${colors.neutral.bg} rounded-full mb-4`}>
+            <Users className={`w-8 h-8 ${getTextClass('light')}`} />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className={`text-lg font-medium ${getTextClass('default')} mb-2`}>
             No tienes grupos aún
           </h3>
-          <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+          <p className={`${getTextClass('muted')} mb-6 max-w-sm mx-auto`}>
             Crea tu primer grupo para comenzar a compartir gastos con otros
             usuarios.
           </p>
           <button
             onClick={() => onCreateNew?.()}
-            className="bg-dodger-blue-600 hover:bg-dodger-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            className={getButtonClass('formPrimary', 'form')}
           >
             Crear Primer Grupo
           </button>

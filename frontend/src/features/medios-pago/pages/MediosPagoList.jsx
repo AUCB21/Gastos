@@ -171,7 +171,7 @@ const MediosPagoList = () => {
           </div>
           <button
             onClick={() => delayedNavigate(navigate, "/medios-pago/add", 250)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl shadow transition-colors"
           >
             + Crear Nuevo Medio
           </button>

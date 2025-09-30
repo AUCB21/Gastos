@@ -5,6 +5,7 @@ import Gasto from "../components/Gasto";
 import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
 import { useUserData } from "../../../hooks/useUserData";
 import delayedNavigate from "../../../hooks/delayedNavigate";
+import { getButtonClass } from "../../../utils/colorSystem";
 
 const GastosList = () => {
   const [gastos, setGastos] = useState([]);
@@ -189,7 +190,7 @@ const GastosList = () => {
           <h1 className="text-2xl font-bold text-gray-800">Lista de Gastos</h1>
           <button 
             onClick={() => delayedNavigate(navigate, "/gastos/add", 250)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition-colors"
+            className={getButtonClass('formPrimary', 'form')}
           >
             + Crear Nuevo Gasto
           </button>
@@ -271,7 +272,7 @@ const GastosList = () => {
               {!search && estado === "Todos" && (
                 <button
                   onClick={() => delayedNavigate(navigate, "/gastos/add", 250)}
-                  className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                  className={getButtonClass('formPrimary', 'form')}
                 >
                   Crear tu primer gasto
                 </button>

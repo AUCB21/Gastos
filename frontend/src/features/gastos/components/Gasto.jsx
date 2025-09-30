@@ -1,5 +1,6 @@
 import React from "react";
 import { formatLocalDate } from "../../../utils/dateUtils";
+import { getTextClass } from "../../../utils/colorSystem";
 
 const Gasto = ({ gasto, onDelete, onEdit }) => {
     // Fix timezone issue: parse date in local timezone instead of UTC
@@ -40,12 +41,12 @@ const Gasto = ({ gasto, onDelete, onEdit }) => {
 
       {/* Monto + acciones */}
       <div className="flex items-center space-x-4">
-        <p className="text-lg font-bold text-blue-600">
+        <p className={`text-lg font-bold ${getTextClass(gasto.moneda)}`}>
           ${gasto.monto.toLocaleString()} {gasto.moneda}
         </p>
         <button 
           onClick={() => onEdit(gasto.id)}
-          className="text-blue-500 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          className="text-dodger-blue-500 hover:text-dodger-blue-700 p-2 rounded-lg text-b hover:bg-dodger-blue-50 transition-colors duration-200"
           title="Editar gasto"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

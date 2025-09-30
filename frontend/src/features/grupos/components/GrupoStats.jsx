@@ -1,4 +1,5 @@
 import React from "react";
+import { getTextClass, colors } from "../../../utils/colorSystem";
 import {
   Users,
   DollarSign,
@@ -44,32 +45,32 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
       value: activeMembers,
       total: members.length,
       icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      color: colors.primary.text,
+      bgColor: colors.primary.bg,
       description: `${activeMembers} de ${members.length} miembros activos`,
     },
     {
       title: "Gastos Totales",
       value: formatCurrency(totalExpenses),
       icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
+      color: colors.success.text,
+      bgColor: colors.success.bg,
       description: `${expenses.length} transacciones registradas`,
     },
     {
       title: "Promedio por Miembro",
       value: formatCurrency(avgExpensePerMember),
       icon: TrendingUp,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
+      color: colors.primary.text,
+      bgColor: colors.primary.bg,
       description: activeMembers > 0 ? "Distribución equitativa" : "Sin miembros activos",
     },
     {
       title: "Actividad Reciente",
       value: recentExpenses,
       icon: Clock,
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
+      color: colors.warning.text,
+      bgColor: colors.warning.bg,
       description: "Gastos en los últimos 7 días",
     },
   ];
@@ -80,9 +81,9 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
       {(isExpired || isExpiringSoon || !grupo?.is_active) && (
         <div className="grid gap-2">
           {!grupo?.is_active && (
-            <div className="bg-gray-50 rounded-lg p-3 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-gray-600" />
-              <span className="text-gray-700 text-sm font-medium">Grupo Inactivo</span>
+            <div className={`${colors.extra.bg} rounded-lg p-3 flex items-center gap-2`}>
+              <AlertTriangle className={`w-5 h-5 ${getTextClass('muted')}`} />
+              <span className={`${getTextClass('default')} text-sm font-medium`}>Grupo Inactivo</span>
             </div>
           )}
           {isExpired && (
@@ -116,14 +117,14 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
                 </div>
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-600">{stat.title}</h3>
-                <div className="text-2xl font-bold text-gray-900">
+                <h3 className={`text-sm font-medium ${getTextClass('muted')}`}>{stat.title}</h3>
+                <div className={`text-2xl font-bold ${getTextClass('default')}`}>
                   {stat.value}
                   {stat.total && (
-                    <span className="text-lg font-normal text-gray-500">/{stat.total}</span>
+                    <span className={`text-lg font-normal ${getTextClass('muted')}`}>/{stat.total}</span>
                   )}
                 </div>
-                <p className="text-xs text-gray-500">{stat.description}</p>
+                <p className={`text-xs ${getTextClass('light')}`}>{stat.description}</p>
               </div>
             </div>
           );
@@ -133,7 +134,7 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
       {/* Additional Info */}
       {grupo && (
         <div className="bg-white rounded-lg shadow-sm border p-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <h3 className={`text-lg font-semibold ${getTextClass('default')} mb-3 flex items-center gap-2`}>
             <Target className="w-5 h-5" />
             Información del Grupo
           </h3>
@@ -142,7 +143,7 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
                 <div className="text-sm">
-                  <span className="text-gray-600">Creado:</span>
+                  <span className={getTextClass('muted')}>Creado:</span>
                   <span className="ml-1 font-medium">
                     {new Date(grupo.created_at).toLocaleDateString("es-ES", {
                       year: "numeric",
@@ -155,9 +156,9 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
               
               {grupo.start_date && (
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <Calendar className={`w-4 h-4 ${getTextClass('light')}`} />
                   <div className="text-sm">
-                    <span className="text-gray-600">Inicio:</span>
+                    <span className={getTextClass('muted')}>Inicio:</span>
                     <span className="ml-1 font-medium">
                       {new Date(grupo.start_date).toLocaleDateString("es-ES", {
                         year: "numeric",
@@ -171,9 +172,9 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
               
               {grupo.end_date && (
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <Calendar className={`w-4 h-4 ${getTextClass('light')}`} />
                   <div className="text-sm">
-                    <span className="text-gray-600">Fin:</span>
+                    <span className={getTextClass('muted')}>Fin:</span>
                     <span className={`ml-1 font-medium ${
                       isExpired ? "text-red-600" : isExpiringSoon ? "text-yellow-600" : ""
                     }`}>
@@ -196,9 +197,9 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
                   grupo.is_active ? "text-green-500" : "text-gray-400"
                 }`} />
                 <div className="text-sm">
-                  <span className="text-gray-600">Estado:</span>
+                  <span className={getTextClass('muted')}>Estado:</span>
                   <span className={`ml-1 font-medium ${
-                    grupo.is_active ? "text-green-600" : "text-gray-500"
+                    grupo.is_active ? colors.success.text : getTextClass('muted')
                   }`}>
                     {grupo.is_active ? "Activo" : "Inactivo"}
                   </span>
@@ -206,11 +207,11 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
               </div>
               
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-gray-400" />
+                <Users className={`w-4 h-4 ${getTextClass('light')}`} />
                 <div className="text-sm">
-                  <span className="text-gray-600">Nuevos miembros:</span>
+                  <span className={getTextClass('muted')}>Nuevos miembros:</span>
                   <span className={`ml-1 font-medium ${
-                    grupo.allow_new_members ? "text-green-600" : "text-gray-500"
+                    grupo.allow_new_members ? colors.success.text : getTextClass('muted')
                   }`}>
                     {grupo.allow_new_members ? "Permitidos" : "Cerrado"}
                   </span>
@@ -218,9 +219,9 @@ const GrupoStats = ({ grupo, members = [], expenses = [], className = "" }) => {
               </div>
               
               <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-gray-400" />
+                <DollarSign className={`w-4 h-4 ${getTextClass('light')}`} />
                 <div className="text-sm">
-                  <span className="text-gray-600">Moneda:</span>
+                  <span className={getTextClass('muted')}>Moneda:</span>
                   <span className="ml-1 font-medium">{grupo.default_currency}</span>
                 </div>
               </div>

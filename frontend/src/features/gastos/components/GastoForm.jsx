@@ -10,6 +10,7 @@ import {
   Receipt,
   CreditCard,
 } from "lucide-react";
+import { getButtonClass } from "../../../utils/colorSystem";
 
 // Currency enum
 const MONEDAS = {
@@ -414,7 +415,7 @@ const GastoForm = ({ onGastoCreated }) => {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-dodger-blue-600 to-dodger-blue-700 hover:from-dodger-blue-700 hover:to-dodger-blue-800 text-white font-medium py-3 px-4 rounded-lg shadow-md transform transition-all duration-200 hover:scale-105 focus:ring-4 focus:ring-dodger-blue-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className={getButtonClass('formPrimary', 'form')}
             >
               {loading ? (
                 <div className="flex items-center justify-center">

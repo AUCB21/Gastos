@@ -3,6 +3,7 @@ import api from "../../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 import LoadingIndicator from "./LoadingIndicator";
+import { getTextClass, colors } from "../../utils/colorSystem";
 
 const LoginForm = ({route, method}) => {
   const [username, setUsername] = useState("");
@@ -153,7 +154,7 @@ const LoginForm = ({route, method}) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
+    <div className={`min-h-screen flex items-center justify-center ${colors.background} px-6`}>
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-gray-50 to-green-50 opacity-90" />
       
       <div className="w-full max-w-md rounded-2xl shadow-xl bg-white/95 backdrop-blur-sm p-8 ring-1 ring-gray-100">
@@ -169,10 +170,10 @@ const LoginForm = ({route, method}) => {
               </svg>
             </div>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-800">
+          <h1 className={`text-2xl font-semibold ${colors.text}`}>
             {isLogin ? "¡Bienvenido de nuevo!" : "¡Unite a nosotros!"}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className={`text-sm ${getTextClass('light')} mt-1`}>
             {isLogin 
               ? "Ingresa con tus credenciales para continuar" 
               : "Crea tu cuenta para comenzar a gestionar tus gastos"
@@ -194,7 +195,7 @@ const LoginForm = ({route, method}) => {
                 value={username}
                 onChange={handleUsernameChange}
                 className={`mt-1 block w-full rounded-xl border px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-blue-500/20 ${
-                  errors.username ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300 focus:border-blue-500'
+                  errors.username ? `${colors.alert.border} ${colors.alert.bgLight}` : `${colors.border} hover:border-gray-300 focus:border-blue-500`
                 }`}
                 placeholder={isLogin ? "Tu usuario o email" : "Tu nombre de usuario"}
                 disabled={loading}

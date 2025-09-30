@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../../api";
+import { getTextClass, colors } from "../../../utils/colorSystem";
 import {
   Users,
   UserPlus,
@@ -117,15 +118,15 @@ const GroupMembersList = ({ grupoId, isOwner = false, className = "" }) => {
   const getRoleIcon = (role) => {
     switch (role) {
       case "owner":
-        return <Crown className="w-4 h-4 text-yellow-600" />;
+        return <Crown className={`w-4 h-4 ${colors.warning.text}`} />;
       case "admin":
-        return <ShieldCheck className="w-4 h-4 text-purple-600" />;
+        return <ShieldCheck className={`w-4 h-4 ${colors.primary.text}`} />;
       case "member":
-        return <Shield className="w-4 h-4 text-blue-600" />;
+        return <Shield className={`w-4 h-4 ${colors.primary.text}`} />;
       case "viewer":
-        return <Eye className="w-4 h-4 text-gray-600" />;
+        return <Eye className={`w-4 h-4 ${getTextClass('muted')}`} />;
       default:
-        return <Users className="w-4 h-4 text-gray-400" />;
+        return <Users className={`w-4 h-4 ${getTextClass('light')}`} />;
     }
   };
 
@@ -180,14 +181,14 @@ const GroupMembersList = ({ grupoId, isOwner = false, className = "" }) => {
     <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <h2 className={`text-lg font-semibold ${getTextClass('default')} flex items-center gap-2`}>
           <Users className="w-5 h-5" />
           Miembros ({members.length})
         </h2>
         {isOwner && (
           <button
             onClick={() => setShowInviteForm(!showInviteForm)}
-            className="flex items-center gap-2 px-3 py-1 text-dodger-blue-600 hover:bg-dodger-blue-50 rounded-lg transition-colors"
+            className={`flex items-center gap-2 px-3 py-1 ${colors.primary.text} hover:${colors.primary.bg} rounded-lg transition-colors`}
           >
             <UserPlus className="w-4 h-4" />
             Invitar
@@ -197,7 +198,7 @@ const GroupMembersList = ({ grupoId, isOwner = false, className = "" }) => {
       
       {/* Invite Form */}
       {showInviteForm && (
-        <div className="p-4 bg-gray-50 border-b border-gray-200">
+        <div className={`p-4 ${colors.extra.bg} border-b border-gray-200`}>
           <div className="flex gap-2">
             <input
               type="email"
@@ -205,18 +206,18 @@ const GroupMembersList = ({ grupoId, isOwner = false, className = "" }) => {
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && sendInvite()}
-              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-dodger-blue-500 focus:border-dodger-blue-500"
+              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <button
               onClick={sendInvite}
               disabled={inviteLoading || !inviteEmail.trim()}
-              className="px-4 py-2 bg-dodger-blue-600 text-white rounded-lg hover:bg-dodger-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {inviteLoading ? "Enviando..." : "Enviar"}
             </button>
             <button
               onClick={() => setShowInviteForm(false)}
-              className="px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className={`px-3 py-2 ${getTextClass('muted')} hover:${getTextClass('default')} transition-colors`}
             >
               Cancelar
             </button>
@@ -258,22 +259,22 @@ const GroupMembersList = ({ grupoId, isOwner = false, className = "" }) => {
       {/* Members List */}
       <div className="divide-y divide-gray-200">
         {members.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+          <div className={`p-8 text-center ${getTextClass('muted')}`}>
+            <Users className={`w-12 h-12 ${getTextClass('light')} mx-auto mb-2`} />
             <p>No hay miembros en este grupo</p>
           </div>
         ) : (
           members.map((member) => (
             <div key={member.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-dodger-blue-100 rounded-full flex items-center justify-center">
-                  <Users className="w-5 h-5 text-dodger-blue-600" />
+                <div className={`w-10 h-10 ${colors.primary.bg} rounded-full flex items-center justify-center`}>
+                  <Users className={`w-5 h-5 ${colors.primary.text}`} />
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900">
+                  <div className={`font-medium ${getTextClass('default')}`}>
                     {member.user_info?.username || "Usuario"}
                     {member.user_info?.first_name && (
-                      <span className="text-gray-600 ml-1">
+                      <span className={`${getTextClass('muted')} ml-1`}>
                         ({member.user_info.first_name} {member.user_info.last_name})
                       </span>
                     )}
