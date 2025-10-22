@@ -9,7 +9,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-DEBUG = True  # os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = False  # os.getenv("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
     '*',  # Keep this for development flexibility
@@ -94,12 +94,12 @@ WSGI_APPLICATION = 'gastos.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv("DATABASE_URL")
+         default=os.getenv("DATABASE_URL")
     ),
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+    #}
 }
 
 if not DEBUG:

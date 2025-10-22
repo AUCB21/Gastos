@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 MIGRACIÓN SEGURA A GRUPOS
-Este script te ayuda a migrar de manera segura implementando el modelo Grupo
+Este script ayuda a migrar de manera segura implementando el modelo Grupo
 manteniendo todos los datos existentes.
 """
 
