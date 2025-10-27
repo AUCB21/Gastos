@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [
     react()
   ],
+  // Use relative paths for assets (allows opening index.html directly)
+  base: './',
   css: {
     postcss: {
       plugins: [
