@@ -148,7 +148,9 @@ class Gasto(models.Model):
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE, related_name='gastos', null=True, blank=True, help_text="Grupo asociado")
     
     # Basic expense info
+    titulo: str = models.CharField(max_length=32, default='')
     monto: float = models.FloatField()
+    monto_pendiente: float = models.FloatField(default=0)
     moneda: str = models.CharField(max_length=3, choices=MONEDAS_CHOICES, default='ARS')
     pagos_realizados: int = models.IntegerField()
     pagos_totales: int = models.IntegerField()
@@ -189,8 +191,9 @@ class Gasto(models.Model):
     
     def get_remaining_amount(self):
         """Get remaining amount to be paid"""
-        return self.monto * (self.pagos_totales - self.pagos_realizados)
-    
+        self.monto_pendiente = round(self.monto * (self.pagos_totales - self.pagos_realizados), 2)
+        return self.monto_pendiente
+
     def get_splits(self):
         """Get all expense splits for this shared expense"""
         if self.is_shared:
