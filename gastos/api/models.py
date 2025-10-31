@@ -191,7 +191,7 @@ class Gasto(models.Model):
     
     def get_remaining_amount(self):
         """Get remaining amount to be paid"""
-        self.monto_pendiente = self.monto * (self.pagos_totales - self.pagos_realizados)
+        self.monto_pendiente = round(self.monto * (self.pagos_totales - self.pagos_realizados), 2)
         return self.monto_pendiente
 
     def get_splits(self):

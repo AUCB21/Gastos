@@ -18,8 +18,8 @@ class MedioPagoAdmin(admin.ModelAdmin):
 
 @admin.register(Gasto)
 class GastoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'categoria', 'monto', 'moneda', 'vendedor', 'fecha_gasto', 'user', 'grupo', 'is_shared')
-    list_filter = ('categoria', 'moneda', 'fecha_gasto', 'user', 'grupo', 'is_shared', 'split_type')
+    list_display = ('id', 'titulo','categoria', 'monto', 'moneda', 'vendedor', 'fecha_gasto', 'user', 'grupo', 'is_shared')
+    list_filter = ('titulo', 'categoria', 'moneda', 'fecha_gasto', 'user', 'grupo', 'is_shared', 'split_type')
     search_fields = ('vendedor', 'comentarios', 'categoria', 'grupo__name')
     ordering = ('-fecha_gasto',)
     readonly_fields = ('created_at', 'updated_at')
@@ -29,7 +29,7 @@ class GastoAdmin(admin.ModelAdmin):
             'fields': ('user', 'grupo')
         }),
         ('Detalles del Gasto', {
-            'fields': ('categoria', 'monto', 'moneda', 'vendedor', 'fecha_gasto')
+            'fields': ('titulo', 'categoria', 'monto', 'moneda', 'vendedor', 'fecha_gasto')
         }),
         ('Medio de Pago', {
             'fields': ('medio_pago',)

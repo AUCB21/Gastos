@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Receipt,
   CreditCard,
+  TextCursorInput,
 } from "lucide-react";
 import { getButtonClass, componentStyles } from "../../../utils/colorSystem";
 
@@ -33,6 +34,7 @@ const CATEGORIAS = {
 const GastoForm = ({ onGastoCreated }) => {
   // Use a single state object to manage all form data
   const [formData, setFormData] = useState({
+    titulo: "",
     monto: "",
     moneda: "ARS", // Default to ARS
     fecha_gasto: getTodayDate(), // Default to today's date
@@ -121,7 +123,6 @@ const GastoForm = ({ onGastoCreated }) => {
       monto: parseFloat(formData.monto),
       pagos_realizados: parseInt(formData.pagos_realizados),
       pagos_totales: parseInt(formData.pagos_totales),
-      medio_pago: parseInt(formData.medio_pago),
     };
 
     setLoading(true);
@@ -129,6 +130,7 @@ const GastoForm = ({ onGastoCreated }) => {
     try {
       await onGastoCreated(processedData);
       setFormData({
+        titulo: "",
         monto: "",
         moneda: "ARS", // Reset to default ARS
         fecha_gasto: getTodayDate(), // Reset to today's date
@@ -163,6 +165,22 @@ const GastoForm = ({ onGastoCreated }) => {
       </div>
 
       <div className="space-y-4">
+            {/* Title */}
+            <div>
+              <label className={componentStyles.form.label}>
+                <TextCursorInput className="inline w-4 h-4 mr-1" />
+                Título
+              </label>
+              <input
+                type="text"
+                name="titulo"
+                value={formData.titulo}
+                onChange={handleInputChange}
+                className={componentStyles.form.input}
+                placeholder="Título del gasto"
+              />
+            </div>
+
             {/* Amount and Currency Row */}
             <div className="grid grid-cols-2 gap-3">
               <div>
