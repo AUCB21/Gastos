@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api"; 
 import { ACCESS_TOKEN } from "../../constants";
@@ -7,6 +7,27 @@ import { useUserData } from "../../hooks/useUserData";
 import delayedNavigate from "../../hooks/delayedNavigate";
 import { formatLocalDate } from "../../utils/dateUtils";
 import { getButtonClass, getCardClass, getTextClass, colors } from "../../utils/colorSystem";
+
+// Memoized Recent Gasto Item Component
+const RecentGastoItem = memo(({ gasto, onClick }) => {
+  return (
+    <div 
+      className={`flex items-center justify-between p-3 ${colors.neutral.bg} rounded-lg hover:bg-gray-100 cursor-pointer transition-colors duration-200`}
+      onClick={() => onClick(gasto.id)}
+    >
+      <div className="flex-1">
+        <p className={`font-semibold ${colors.text}`}>
+          ${gasto.monto} {gasto.moneda} - {gasto.vendedor}
+        </p>
+        <p className={`text-sm ${getTextClass('light')}`}>
+          {formatLocalDate(gasto.fecha_gasto)} • {gasto.categoria?.name || gasto.categoria}
+        </p>
+      </div>
+    </div>
+  );
+});
+
+RecentGastoItem.displayName = 'RecentGastoItem';
 
 const Home = () => {
   const [stats, setStats] = useState({
@@ -17,11 +38,7 @@ const Home = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       const [gastosResponse, mediosPagoResponse] = await Promise.all([
         api.get("/api/gastos/"),
@@ -44,11 +61,36 @@ const Home = () => {
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     }
-  };
+  }, []);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const handleLogout = useCallback(() => {
     navigate("/logout");
-  };
+  }, [navigate]);
+
+  const handleGastoClick = useCallback((gastoId) => {
+    delayedNavigate(navigate, `/gastos/${gastoId}`, 200);
+  }, [navigate]);
+
+  // Memoized navigation handlers
+  const navigateToGastos = useCallback(() => {
+    delayedNavigate(navigate, "/gastos", 200);
+  }, [navigate]);
+
+  const navigateToMediosPago = useCallback(() => {
+    delayedNavigate(navigate, "/medios-pago", 200);
+  }, [navigate]);
+
+  const navigateToAddGasto = useCallback(() => {
+    delayedNavigate(navigate, "/gastos/add", 500);
+  }, [navigate]);
+
+  const navigateToAddMedioPago = useCallback(() => {
+    delayedNavigate(navigate, "/medios-pago/add", 500);
+  }, [navigate]);
 
   return (
     <LayoutWrapper user={user} onLogout={handleLogout} pageType="home">
@@ -67,7 +109,7 @@ const Home = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div 
             className={`${getCardClass('default')} shadow-lg hover:cursor-pointer`}
-            onClick={() => delayedNavigate(navigate, "/gastos", 200)}
+            onClick={navigateToGastos}
             >
             <div className="flex items-center justify-between">
               <div>
@@ -84,7 +126,7 @@ const Home = () => {
 
           <div 
             className={`${getCardClass('default')} shadow-lg hover:cursor-pointer`}
-            onClick={() => delayedNavigate(navigate, "/medios-pago", 200)}
+            onClick={navigateToMediosPago}
             >
             <div className="flex items-center justify-between">
               <div>
@@ -105,7 +147,7 @@ const Home = () => {
           <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>Acciones Rápidas</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button
-              onClick={() => delayedNavigate(navigate, "/gastos/add", 500)}
+              onClick={navigateToAddGasto}
               className={`${getButtonClass('formPrimary', 'form')} space-x-2`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +157,7 @@ const Home = () => {
             </button>
             
             <button
-              onClick={() => delayedNavigate(navigate, "/gastos", 500)}
+              onClick={navigateToGastos}
               className={`${getButtonClass('formPrimary', 'form')} space-x-2`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +167,7 @@ const Home = () => {
             </button>
             
             <button
-              onClick={() => delayedNavigate(navigate, "/medios-pago/add", 500)}
+              onClick={navigateToAddMedioPago}
               className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +177,7 @@ const Home = () => {
             </button>
             
             <button
-              onClick={() => delayedNavigate(navigate, "/medios-pago", 500)}
+              onClick={navigateToMediosPago}
               className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,21 +194,16 @@ const Home = () => {
             <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>Gastos Recientes</h2>
             <div className="space-y-3">
               {stats.gastosRecientes.map((gasto) => (
-                <div key={gasto.id} className={`flex items-center justify-between p-3 ${colors.neutral.bg} rounded-lg`}>
-                  <div className="flex-1">
-                    <p className={`font-semibold ${colors.text}`}>
-                      ${gasto.monto} {gasto.moneda} - {gasto.vendedor}
-                    </p>
-                    <p className={`text-sm ${getTextClass('light')}`}>
-                      {formatLocalDate(gasto.fecha_gasto)} • {gasto.categoria?.name || gasto.categoria}
-                    </p>
-                  </div>
-                </div>
+                <RecentGastoItem 
+                  key={gasto.id} 
+                  gasto={gasto} 
+                  onClick={handleGastoClick}
+                />
               ))}
             </div>
             <div className="mt-4 text-center">
               <button
-                onClick={() => delayedNavigate(navigate, "/gastos", 500)}
+                onClick={navigateToGastos}
                 className={`${colors.primary.text} hover:${colors.primary.textDark} font-medium`}
               >
                 Ver todos los gastos →
