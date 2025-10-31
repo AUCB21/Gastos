@@ -1,9 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { Eye } from "lucide-react";
 import { formatLocalDate } from "../../../utils/dateUtils";
 import { getTextClass } from "../../../utils/colorSystem";
 
-const Gasto = ({ gasto, onDelete, onEdit, onPayInstallment }) => {
+const Gasto = memo(({ gasto, onDelete, onEdit, onPayInstallment }) => {
     // Fix timezone issue: parse date in local timezone instead of UTC
     const formattedDate = formatLocalDate(gasto.fecha_gasto);
     
@@ -93,6 +93,8 @@ const Gasto = ({ gasto, onDelete, onEdit, onPayInstallment }) => {
       </div>
     </div>
   );
-};
+});
+
+Gasto.displayName = 'Gasto';
 
 export default Gasto;

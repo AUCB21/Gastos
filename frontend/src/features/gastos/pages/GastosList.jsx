@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import Gasto from "../components/Gasto";
@@ -21,17 +21,13 @@ const GastosList = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 
-  const showToast = (message, type = 'success') => {
+  const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type });
-  };
+  }, []);
 
   const perPage = 6;
 
-  useEffect(() => {
-    getGastos();
-  }, []);
-
-  const getGastos = async () => {
+  const getGastos = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get("/api/gastos/");
@@ -46,18 +42,39 @@ const GastosList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Function to group gastos
-  const groupGastos = (gastosToGroup, groupByValue) => {
-    if (!groupByValue) return { "Todos los gastos": gastosToGroup };
+  useEffect(() => {
+    getGastos();
+  }, [getGastos]);
+
+  // Memoized filtering logic
+  const filteredGastos = useMemo(() => {
+    return gastos.filter((gasto) => {
+      const matchesSearch = 
+        gasto.vendedor.toLowerCase().includes(search.toLowerCase()) ||
+        (gasto.categoria?.name || gasto.categoria || '').toLowerCase().includes(search.toLowerCase()) ||
+        (gasto.comentarios || '').toLowerCase().includes(search.toLowerCase());
+      
+      const isPaid = gasto.pagos_realizados === gasto.pagos_totales;
+      const matchesStatus = estado === "Todos" || 
+        (estado === "Pagado" && isPaid) || 
+        (estado === "Pendiente" && !isPaid);
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [gastos, search, estado]);
+
+  // Memoized grouping logic
+  const groupedGastos = useMemo(() => {
+    if (!groupBy) return { "Todos los gastos": filteredGastos };
 
     const grouped = {};
 
-    gastosToGroup.forEach((gasto) => {
+    filteredGastos.forEach((gasto) => {
       let groupKey;
 
-      switch (groupByValue) {
+      switch (groupBy) {
         case "categoria":
           groupKey = gasto.categoria?.name || gasto.categoria || "Sin categoría";
           break;
@@ -90,38 +107,31 @@ const GastosList = () => {
     });
 
     return sortedGrouped;
-  };
+  }, [filteredGastos, groupBy]);
 
-  // Filter gastos based on search and status
-  const filteredGastos = gastos.filter((gasto) => {
-    const matchesSearch = 
-      gasto.vendedor.toLowerCase().includes(search.toLowerCase()) ||
-      (gasto.categoria?.name || gasto.categoria || '').toLowerCase().includes(search.toLowerCase()) ||
-      (gasto.comentarios || '').toLowerCase().includes(search.toLowerCase());
-    
-    const isPaid = gasto.pagos_realizados === gasto.pagos_totales;
-    const matchesStatus = estado === "Todos" || 
-      (estado === "Pagado" && isPaid) || 
-      (estado === "Pendiente" && !isPaid);
-    
-    return matchesSearch && matchesStatus;
-  });
+  // Memoized pagination data
+  const { allFilteredGastos, totalPages } = useMemo(() => {
+    const all = Object.values(groupedGastos).flat();
+    return {
+      allFilteredGastos: all,
+      totalPages: Math.ceil(all.length / perPage)
+    };
+  }, [groupedGastos, perPage]);
 
-  // Group the filtered gastos
-  const groupedGastos = groupGastos(filteredGastos, groupBy);
+  // Memoized totals calculation
+  const { totalAmount, paidAmount, pendingAmount } = useMemo(() => {
+    const total = gastos.reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
+    const paid = gastos
+      .filter(g => g.pagos_realizados === g.pagos_totales)
+      .reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
+    return {
+      totalAmount: total,
+      paidAmount: paid,
+      pendingAmount: total - paid
+    };
+  }, [gastos]);
 
-  // Flatten for pagination
-  const allFilteredGastos = Object.values(groupedGastos).flat();
-  const totalPages = Math.ceil(allFilteredGastos.length / perPage);
-
-  // Calculate totals
-  const totalAmount = gastos.reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
-  const paidAmount = gastos
-    .filter(g => g.pagos_realizados === g.pagos_totales)
-    .reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
-  const pendingAmount = totalAmount - paidAmount;
-
-  const deleteGasto = async (id) => {
+  const deleteGasto = useCallback(async (id) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este gasto?")) {
       try {
         const res = await api.delete(`/api/gastos/${id}/`);
@@ -134,9 +144,9 @@ const GastosList = () => {
         alert(`Error: ${error.message}`);
       }
     }
-  };
+  }, [getGastos]);
 
-  const handleShowDetail = async (id) => {
+  const handleShowDetail = useCallback(async (id) => {
     try {
       // Fetch full gasto details including related medio_pago object
       const response = await api.get(`/api/gastos/${id}/`);
@@ -145,9 +155,9 @@ const GastosList = () => {
       console.error("Error fetching gasto details:", error);
       showToast("Error al cargar los detalles del gasto", "error");
     }
-  };
+  }, [showToast]);
 
-  const handlePayCuotaFromModal = async (id) => {
+  const handlePayCuotaFromModal = useCallback(async (id) => {
     const gasto = gastos.find(g => g.id === id);
     if (!gasto) return;
 
@@ -174,12 +184,12 @@ const GastosList = () => {
       console.error("Error paying installment:", error);
       showToast(`Error: ${error.response?.data?.detail || error.message}`, "error");
     }
-  };
+  }, [gastos, showToast, getGastos]);
 
-  const handleEditFromModal = (id) => {
+  const handleEditFromModal = useCallback((id) => {
     setSelectedGasto(null);
     navigate(`/gastos/${id}`);
-  };
+  }, [navigate]);
 
   const handleLogout = () => {
     navigate("/logout");
