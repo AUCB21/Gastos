@@ -13,8 +13,8 @@ const GastoDetailModal = ({ gasto, onClose, onPayCuota, onEdit }) => {
   const isPaid = gasto.pagos_realizados === gasto.pagos_totales;
   const canPayCuota = !isPaid && gasto.pagos_realizados < gasto.pagos_totales;
   const hasCuotas = gasto.pagos_totales > 1;
-  const montoPagado = gasto.monto * gasto.pagos_realizados;
-  const montoTotal = gasto.monto * gasto.pagos_totales;
+  const montoPagado = gasto.monto * (gasto.pagos_realizados / gasto.pagos_totales);
+  const montoTotal = gasto.monto;
 
   const handleActionRequest = (type) => {
     setActionType(type);
@@ -86,7 +86,7 @@ const GastoDetailModal = ({ gasto, onClose, onPayCuota, onEdit }) => {
                   ${montoPagado.toLocaleString()} / ${montoTotal.toLocaleString()} {gasto.moneda}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  ${gasto.monto.toLocaleString()} {gasto.moneda} por cuota
+                  {gasto.pagos_realizados} de {gasto.pagos_totales} cuotas de ${(gasto.monto / gasto.pagos_totales).toFixed(2)}
                 </p>
               </div>
             ) : (
@@ -131,7 +131,10 @@ const GastoDetailModal = ({ gasto, onClose, onPayCuota, onEdit }) => {
               <div>
                 <p className="text-sm text-gray-500">Medio de Pago</p>
                 <p className="font-medium text-gray-900">
-                  {gasto.medio_pago?.ente_emisor || 'N/A'} - {gasto.medio_pago?.tipo || ''}
+                  {gasto.medio_pago_info?.ente_emisor 
+                    ? `${gasto.medio_pago_info.ente_emisor}${gasto.medio_pago_info.tipo ? ` - ${gasto.medio_pago_info.tipo}` : ''}`
+                    : 'No especificado'
+                  }
                 </p>
               </div>
             </div>

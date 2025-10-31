@@ -136,10 +136,14 @@ const GastosList = () => {
     }
   };
 
-  const handleShowDetail = (id) => {
-    const gasto = gastos.find(g => g.id === id);
-    if (gasto) {
-      setSelectedGasto(gasto);
+  const handleShowDetail = async (id) => {
+    try {
+      // Fetch full gasto details including related medio_pago object
+      const response = await api.get(`/api/gastos/${id}/`);
+      setSelectedGasto(response.data);
+    } catch (error) {
+      console.error("Error fetching gasto details:", error);
+      showToast("Error al cargar los detalles del gasto", "error");
     }
   };
 

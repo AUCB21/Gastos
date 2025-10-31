@@ -21,10 +21,10 @@ const Modal = ({
 
   return (
     <div 
-      className={componentStyles.modal.overlay}
+      className={`${componentStyles.modal.overlay} flex items-center justify-center`}
       onClick={handleOverlayClick}
     >
-      <div className={`${componentStyles.modal.content} ${maxWidth} p-6 max-h-[90vh] overflow-y-auto`}>
+      <div className={`${componentStyles.modal.content} ${maxWidth} w-full mx-4 p-6 max-h-[90vh] overflow-y-auto`}>
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900">{title}</h2>

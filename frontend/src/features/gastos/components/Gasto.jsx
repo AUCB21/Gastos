@@ -14,10 +14,10 @@ const Gasto = ({ gasto, onDelete, onEdit, onPayInstallment }) => {
     
     // Calculate amounts
     const hasCuotas = gasto.pagos_totales > 1;
-    
-    const montoPagado = gasto.monto == gasto.monto * gasto.pagos_realizados ? gasto.monto : gasto.monto * gasto.pagos_realizados;
-    
-    const montoTotal = ((gasto.monto * gasto.pagos_realizados) / gasto.pagos_totales).toFixed(2);
+
+    const montoPagado = gasto.monto * (gasto.pagos_realizados / gasto.pagos_totales);
+
+    const montoTotal = gasto.monto;
 
   return (
     <div className="bg-white shadow rounded-xl p-4 flex justify-between items-center">
@@ -57,7 +57,7 @@ const Gasto = ({ gasto, onDelete, onEdit, onPayInstallment }) => {
                 ${montoPagado.toLocaleString()} / ${montoTotal.toLocaleString()} {gasto.moneda}
               </p>
               <p className="text-xs text-gray-500">
-                ${gasto.pagos_totales > 1 ? gasto.pagos_totales : 1} cuotas de ${(gasto.monto / gasto.pagos_totales).toFixed(2)}
+                {gasto.pagos_realizados} de {gasto.pagos_totales > 1 ? gasto.pagos_totales : 1} cuotas de ${(gasto.monto / gasto.pagos_totales).toFixed(2)}
               </p>
             </>
           ) : (
