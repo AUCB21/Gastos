@@ -193,7 +193,7 @@ DATABASES = {
 # .env file
 DATABASE_URL=postgresql://user:password@host:port/dbname
 ```
-
+*Backup your DB with "safe_migration.py"*
 ---
 
 ## Testing
