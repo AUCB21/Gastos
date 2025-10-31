@@ -125,10 +125,10 @@ curl -X POST http://localhost:8000/api/gastos/ \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "titulo": "Grocery Shopping",
+    "titulo": "Upgraded PC",
     "monto": "150.00",
     "moneda": "USD",
-    "categoria": "alimentacion",
+    "categoria": "tecnologia",
     "fecha": "2025-10-30",
     "medio_pago": 1
   }'
