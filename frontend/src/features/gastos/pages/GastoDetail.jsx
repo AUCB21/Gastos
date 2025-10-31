@@ -4,6 +4,7 @@ import { Calendar, DollarSign, User, Tag, MessageSquare, CreditCard, Edit, Arrow
 import api from '../../../api';
 import LayoutWrapper from '../../../shared/components/wrappers/LayoutWrapper';
 import { EditModal } from '../../../shared/components/Modal';
+import Toast from '../../../shared/components/Toast';
 import { useUserData } from '../../../hooks/useUserData';
 import { formatLocalDate } from '../../../utils/dateUtils';
 import delayedNavigate from '../../../hooks/delayedNavigate';
@@ -17,6 +18,11 @@ const GastoDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState({});
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
 
   const getGasto = useCallback(async () => {
     try {
@@ -45,10 +51,36 @@ const GastoDetail = () => {
       const response = await api.put(`/api/gastos/${id}/`, editFormData);
       setGasto(response.data);
       setShowEditModal(false);
-      alert('Gasto actualizado exitosamente');
+      showToast('Gasto actualizado exitosamente', 'success');
     } catch (error) {
       console.error('Error updating gasto:', error);
-      alert('Error al actualizar el gasto');
+      showToast('Error al actualizar el gasto', 'error');
+    }
+  };
+
+  const handlePayCuota = async () => {
+    if (!gasto || gasto.pagos_realizados >= gasto.pagos_totales) {
+      showToast("Este gasto ya está completamente pagado.", "warning");
+      return;
+    }
+
+    try {
+      const updatedGasto = {
+        ...gasto,
+        pagos_realizados: gasto.pagos_realizados + 1
+      };
+      
+      const res = await api.patch(`/api/gastos/${id}/`, {
+        pagos_realizados: updatedGasto.pagos_realizados
+      });
+      
+      if (res.status === 200) {
+        setGasto(res.data);
+        showToast(`Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`, "success");
+      }
+    } catch (error) {
+      console.error("Error paying installment:", error);
+      showToast(`Error: ${error.response?.data?.detail || error.message}`, "error");
     }
   };
 
@@ -88,6 +120,12 @@ const GastoDetail = () => {
 
   const formattedDate = formatLocalDate(gasto.fecha_gasto);
 
+  const isPaid = gasto?.pagos_realizados === gasto?.pagos_totales;
+  const canPayCuota = !isPaid && gasto?.pagos_realizados < gasto?.pagos_totales;
+  const hasCuotas = gasto?.pagos_totales > 1;
+  const montoPagado = gasto.monto * (gasto.pagos_realizados / gasto.pagos_totales);
+  const montoTotal = gasto.monto;
+
   const pageContent = (
     <div className="max-w-2xl mx-auto">
       {/* Header */}
@@ -100,13 +138,23 @@ const GastoDetail = () => {
           Volver a Gastos
         </button>
         
-        <button
-          onClick={() => setShowEditModal(true)}
-          className={`${getButtonClass('formPrimary', 'form')} flex items-center px-4 py-2`}
-        >
-          <Edit className="w-4 h-4 mr-2" />
-          Editar
-        </button>
+        <div className="flex gap-3">
+          {canPayCuota && (
+            <button
+              onClick={handlePayCuota}
+              className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              Pagar Cuota
+            </button>
+          )}
+          <button
+            onClick={() => setShowEditModal(true)}
+            className={`${getButtonClass('formPrimary', 'form')} flex items-center px-4 py-2`}
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Editar
+          </button>
+        </div>
       </div>
 
       {/* Gasto Card */}
@@ -118,9 +166,20 @@ const GastoDetail = () => {
               <DollarSign className="w-12 h-12 text-blue-600" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            ${gasto.monto} {gasto.moneda}
-          </h1>
+          {hasCuotas ? (
+            <>
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                ${montoPagado.toLocaleString()} / ${montoTotal.toLocaleString()} {gasto.moneda}
+              </h1>
+              <p className="text-sm text-gray-500 mb-2">
+                {gasto.pagos_realizados} de {gasto.pagos_totales} cuotas de ${(gasto.monto / gasto.pagos_totales).toFixed(2)}
+              </p>
+            </>
+          ) : (
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              ${gasto.monto.toLocaleString()} {gasto.moneda}
+            </h1>
+          )}
           <p className="text-xl text-gray-600">{gasto.vendedor}</p>
         </div>
 
@@ -234,6 +293,15 @@ const GastoDetail = () => {
   return (
     <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false} pageTitle={`Gasto - ${gasto.vendedor}`}>
       {pageContent}
+      
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </LayoutWrapper>
   );
 };

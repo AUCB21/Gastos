@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import GastoForm from "../components/GastoForm"; 
 import api from "../../../api"; 
 import { ACCESS_TOKEN } from "../../../constants";
@@ -54,6 +55,15 @@ const GastoPage = () => {
   return (
     <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false}>
       <div className="max-w-2xl mx-auto">
+        {/* Back link */}
+        <button
+          onClick={() => navigate("/gastos")}
+          className="mb-4 text-sm text-gray-600 hover:text-blue-600 flex items-center gap-1 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver
+        </button>
+
         {/* Gasto Form */}
         <div className={componentStyles.form.container}>
           <GastoForm onGastoCreated={handleCreateGasto} />

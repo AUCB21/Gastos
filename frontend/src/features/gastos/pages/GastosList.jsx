@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import Gasto from "../components/Gasto";
+import GastoDetailModal from "../components/GastoDetailModal";
 import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
 import { useUserData } from "../../../hooks/useUserData";
 import delayedNavigate from "../../../hooks/delayedNavigate";
 import { getButtonClass } from "../../../utils/colorSystem";
+import Toast from "../../../shared/components/Toast";
 
 const GastosList = () => {
   const [gastos, setGastos] = useState([]);
@@ -14,8 +16,14 @@ const GastosList = () => {
   const [estado, setEstado] = useState("Todos");
   const [groupBy, setGroupBy] = useState(null);
   const [page, setPage] = useState(1);
+  const [toast, setToast] = useState(null);
+  const [selectedGasto, setSelectedGasto] = useState(null);
   const { user } = useUserData();
   const navigate = useNavigate();
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
 
   const perPage = 6;
 
@@ -128,7 +136,48 @@ const GastosList = () => {
     }
   };
 
-  const handleEditGasto = (id) => {
+  const handleShowDetail = async (id) => {
+    try {
+      // Fetch full gasto details including related medio_pago object
+      const response = await api.get(`/api/gastos/${id}/`);
+      setSelectedGasto(response.data);
+    } catch (error) {
+      console.error("Error fetching gasto details:", error);
+      showToast("Error al cargar los detalles del gasto", "error");
+    }
+  };
+
+  const handlePayCuotaFromModal = async (id) => {
+    const gasto = gastos.find(g => g.id === id);
+    if (!gasto) return;
+
+    if (gasto.pagos_realizados >= gasto.pagos_totales) {
+      showToast("Este gasto ya está completamente pagado.", "warning");
+      return;
+    }
+
+    try {
+      const updatedGasto = {
+        ...gasto,
+        pagos_realizados: gasto.pagos_realizados + 1
+      };
+      
+      const res = await api.patch(`/api/gastos/${id}/`, {
+        pagos_realizados: updatedGasto.pagos_realizados
+      });
+      
+      if (res.status === 200) {
+        getGastos(); // Refresh the list
+        showToast(`Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`, "success");
+      }
+    } catch (error) {
+      console.error("Error paying installment:", error);
+      showToast(`Error: ${error.response?.data?.detail || error.message}`, "error");
+    }
+  };
+
+  const handleEditFromModal = (id) => {
+    setSelectedGasto(null);
     navigate(`/gastos/${id}`);
   };
 
@@ -156,7 +205,8 @@ const GastosList = () => {
                   key={gasto.id}
                   gasto={gasto}
                   onDelete={() => deleteGasto(gasto.id)}
-                  onEdit={() => handleEditGasto(gasto.id)}
+                  onEdit={() => handleShowDetail(gasto.id)}
+                  onPayInstallment={() => handleShowDetail(gasto.id)}
                 />
               ))}
             </div>
@@ -174,7 +224,8 @@ const GastosList = () => {
               key={gasto.id}
               gasto={gasto}
               onDelete={() => deleteGasto(gasto.id)}
-              onEdit={() => handleEditGasto(gasto.id)}
+              onEdit={() => handleShowDetail(gasto.id)}
+              onPayInstallment={() => handleShowDetail(gasto.id)}
             />
           ))}
         </div>
@@ -304,6 +355,25 @@ const GastosList = () => {
           </div>
         )}
       </div>
+      
+      {/* Gasto Detail Modal */}
+      {selectedGasto && (
+        <GastoDetailModal
+          gasto={selectedGasto}
+          onClose={() => setSelectedGasto(null)}
+          onPayCuota={handlePayCuotaFromModal}
+          onEdit={handleEditFromModal}
+        />
+      )}
+      
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </LayoutWrapper>
   );
 };
