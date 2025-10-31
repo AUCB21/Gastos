@@ -255,7 +255,7 @@ const GastoDetail = () => {
         title="Editar Gasto"
       >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Monto</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Monto Total</label>
                 <input
                   type="number"
                   step="0.01"

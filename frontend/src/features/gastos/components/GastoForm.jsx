@@ -186,7 +186,7 @@ const GastoForm = ({ onGastoCreated }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   <DollarSign className="inline w-4 h-4 mr-1" />
-                  Monto *
+                  Monto Total *
                 </label>
                 <input
                   type="number"
