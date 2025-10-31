@@ -1,4 +1,4 @@
-# Gastos - Expense Management System
+# Gastos WebApp - Track your expenses
 
 Full-stack expense tracking application with JWT authentication.
 
