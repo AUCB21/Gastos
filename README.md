@@ -254,6 +254,8 @@ Update `frontend/src/constants.js` with production backend URL.
 
 ---
 
-## License
+## License and Contact 
 
 Created by AUCB21. Free for educational and personal use.
+Discord: elrayo1230
+LinkedIn: https://www.linkedin.com/in/augusto-contreras-braillard-654092231/
