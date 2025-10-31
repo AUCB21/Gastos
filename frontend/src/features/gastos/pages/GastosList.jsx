@@ -18,6 +18,7 @@ const GastosList = () => {
   const [page, setPage] = useState(1);
   const [toast, setToast] = useState(null);
   const [selectedGasto, setSelectedGasto] = useState(null);
+  const [gastoDetailsCache, setGastoDetailsCache] = useState({}); // Cache for full gasto details
   const { user } = useUserData();
   const navigate = useNavigate();
 
@@ -136,6 +137,12 @@ const GastosList = () => {
       try {
         const res = await api.delete(`/api/gastos/${id}/`);
         if (res.status === 204) {
+          // Clear cached details for this gasto since it's been deleted
+          setGastoDetailsCache(prev => {
+            const newCache = { ...prev };
+            delete newCache[id];
+            return newCache;
+          });
           getGastos(); // Refresh the list
           alert("Gasto eliminado exitosamente.");
         }
@@ -148,14 +155,24 @@ const GastosList = () => {
 
   const handleShowDetail = useCallback(async (id) => {
     try {
-      // Fetch full gasto details including related medio_pago object
+      // Check if we have cached details
+      if (gastoDetailsCache[id]) {
+        setSelectedGasto(gastoDetailsCache[id]);
+        return;
+      }
+
+      // If not cached, fetch full gasto details including related medio_pago_info object
       const response = await api.get(`/api/gastos/${id}/`);
-      setSelectedGasto(response.data);
+      const fullGastoData = response.data;
+      
+      // Cache the fetched details
+      setGastoDetailsCache(prev => ({ ...prev, [id]: fullGastoData }));
+      setSelectedGasto(fullGastoData);
     } catch (error) {
       console.error("Error fetching gasto details:", error);
       showToast("Error al cargar los detalles del gasto", "error");
     }
-  }, [showToast]);
+  }, [showToast, gastoDetailsCache]);
 
   const handlePayCuotaFromModal = useCallback(async (id) => {
     const gasto = gastos.find(g => g.id === id);
@@ -177,6 +194,12 @@ const GastosList = () => {
       });
       
       if (res.status === 200) {
+        // Clear cached details for this gasto since it's been updated
+        setGastoDetailsCache(prev => {
+          const newCache = { ...prev };
+          delete newCache[id];
+          return newCache;
+        });
         getGastos(); // Refresh the list
         showToast(`Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`, "success");
       }
@@ -214,9 +237,9 @@ const GastosList = () => {
                 <Gasto
                   key={gasto.id}
                   gasto={gasto}
-                  onDelete={() => deleteGasto(gasto.id)}
-                  onEdit={() => handleShowDetail(gasto.id)}
-                  onPayInstallment={() => handleShowDetail(gasto.id)}
+                  onDelete={deleteGasto}
+                  onEdit={handleShowDetail}
+                  onPayInstallment={handleShowDetail}
                 />
               ))}
             </div>
@@ -233,9 +256,9 @@ const GastosList = () => {
             <Gasto
               key={gasto.id}
               gasto={gasto}
-              onDelete={() => deleteGasto(gasto.id)}
-              onEdit={() => handleShowDetail(gasto.id)}
-              onPayInstallment={() => handleShowDetail(gasto.id)}
+              onDelete={deleteGasto}
+              onEdit={handleShowDetail}
+              onPayInstallment={handleShowDetail}
             />
           ))}
         </div>
