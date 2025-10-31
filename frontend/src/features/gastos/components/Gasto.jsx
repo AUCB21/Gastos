@@ -1,21 +1,30 @@
 import React from "react";
+import { Eye } from "lucide-react";
 import { formatLocalDate } from "../../../utils/dateUtils";
 import { getTextClass } from "../../../utils/colorSystem";
 
-const Gasto = ({ gasto, onDelete, onEdit }) => {
+const Gasto = ({ gasto, onDelete, onEdit, onPayInstallment }) => {
     // Fix timezone issue: parse date in local timezone instead of UTC
     const formattedDate = formatLocalDate(gasto.fecha_gasto);
     
     // Determine payment status
     const isPaid = gasto.pagos_realizados === gasto.pagos_totales;
     const statusText = isPaid ? "Pagado" : "Pendiente";
+    const canPayCuota = !isPaid && gasto.pagos_realizados < gasto.pagos_totales;
+    
+    // Calculate amounts
+    const hasCuotas = gasto.pagos_totales > 1;
+    
+    const montoPagado = gasto.monto == gasto.monto * gasto.pagos_realizados ? gasto.monto : gasto.monto * gasto.pagos_realizados;
+    
+    const montoTotal = ((gasto.monto * gasto.pagos_realizados) / gasto.pagos_totales).toFixed(2);
 
   return (
     <div className="bg-white shadow rounded-xl p-4 flex justify-between items-center">
       {/* Info izquierda */}
       <div>
         <h2 className="text-lg font-semibold text-gray-800">
-          {gasto.vendedor}
+          {gasto.titulo}
         </h2>
         <p className="text-sm text-gray-500">
           {gasto.categoria.name || gasto.categoria} • {formattedDate}
@@ -41,17 +50,36 @@ const Gasto = ({ gasto, onDelete, onEdit }) => {
 
       {/* Monto + acciones */}
       <div className="flex items-center space-x-4">
-        <p className={`text-lg font-bold ${getTextClass(gasto.moneda)}`}>
-          ${gasto.monto.toLocaleString()} {gasto.moneda}
-        </p>
+        <div className="text-right">
+          {hasCuotas ? (
+            <>
+              <p className={`text-lg font-bold ${getTextClass(gasto.moneda)}`}>
+                ${montoPagado.toLocaleString()} / ${montoTotal.toLocaleString()} {gasto.moneda}
+              </p>
+              <p className="text-xs text-gray-500">
+                ${gasto.pagos_totales > 1 ? gasto.pagos_totales : 1} cuotas de ${(gasto.monto / gasto.pagos_totales).toFixed(2)}
+              </p>
+            </>
+          ) : (
+            <p className={`text-lg font-bold ${getTextClass(gasto.moneda)}`}>
+              ${gasto.monto.toLocaleString()} {gasto.moneda}
+            </p>
+          )}
+        </div>
+        {canPayCuota && (
+          <button 
+            onClick={() => onPayInstallment(gasto.id)}
+            className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-200"
+          >
+            Pagar cuota
+          </button>
+        )}
         <button 
           onClick={() => onEdit(gasto.id)}
           className="text-dodger-blue-500 hover:text-dodger-blue-700 p-2 rounded-lg text-b hover:bg-dodger-blue-50 transition-colors duration-200"
-          title="Editar gasto"
+          title="Ver detalles"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
+          <Eye className="w-5 h-5" />
         </button>
         <button 
           onClick={() => onDelete(gasto.id)}
