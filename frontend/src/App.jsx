@@ -53,6 +53,10 @@ const RegAndLogout = () => {
 };
 
 function App() {
+  setInterval(() => {
+    api.post("/api/cotizaciones/");
+  }, 45000); // 45 seconds interval
+
   return (
     <>
       <BrowserRouter>
