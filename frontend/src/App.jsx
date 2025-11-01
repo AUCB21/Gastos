@@ -54,7 +54,7 @@ const RegAndLogout = () => {
 
 function App() {
   setInterval(() => {
-    api.post("/api/cotizaciones/");
+    api.get("/api/cotizaciones/");
   }, 45000); // 45 seconds interval
 
   return (
