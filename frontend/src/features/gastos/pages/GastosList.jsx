@@ -121,6 +121,11 @@ const GastosList = () => {
 
   // Memoized totals calculation
   const { totalAmount, paidAmount, pendingAmount } = useMemo(() => {
+
+    const pendiente = (gasto) => {
+      return gasto.monto - (gasto.monto * (gasto.pagos_realizados / gasto.pagos_totales));
+    }
+
     const total = gastos.reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
     const paid = gastos
       .filter(g => g.pagos_realizados === g.pagos_totales)
@@ -128,7 +133,7 @@ const GastosList = () => {
     return {
       totalAmount: total,
       paidAmount: paid,
-      pendingAmount: total - paid
+      pendingAmount: pendiente
     };
   }, [gastos]);
 
