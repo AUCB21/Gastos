@@ -121,19 +121,26 @@ const GastosList = () => {
 
   // Memoized totals calculation
   const { totalAmount, paidAmount, pendingAmount } = useMemo(() => {
-
-    const pendiente = (gasto) => {
-      return gasto.monto - (gasto.monto * (gasto.pagos_realizados / gasto.pagos_totales));
-    }
-
     const total = gastos.reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
     const paid = gastos
       .filter(g => g.pagos_realizados === g.pagos_totales)
       .reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
+    
+    // Calculate pending amount: sum of all pending cuotas across all gastos
+    const pending = gastos.reduce((sum, gasto) => {
+      const montoTotal = parseFloat(gasto.monto).toFixed(2);
+      const cuotasTotales = gasto.pagos_totales;
+      const cuotasAbonadas = gasto.pagos_realizados;
+      const cuotasPendientes = cuotasTotales - cuotasAbonadas;
+      const montoPorCuota = (montoTotal / cuotasTotales).toFixed(2);
+      const montoPendienteGasto = montoPorCuota * cuotasPendientes;
+      return sum + montoPendienteGasto;
+    }, 0);
+    
     return {
       totalAmount: total,
       paidAmount: paid,
-      pendingAmount: pendiente
+      pendingAmount: pending
     };
   }, [gastos]);
 
