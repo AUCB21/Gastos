@@ -233,6 +233,51 @@ const GastosList = () => {
     [showToast, gastoDetailsCache]
   );
 
+  // Handler for direct payment from list (without modal)
+  const handlePayCuota = useCallback(
+    async (id) => {
+      const gasto = gastos.find((g) => g.id === id);
+      if (!gasto) return;
+
+      if (gasto.pagos_realizados >= gasto.pagos_totales) {
+        showToast("Este gasto ya está completamente pagado.", "warning");
+        return;
+      }
+
+      try {
+        const updatedGasto = {
+          ...gasto,
+          pagos_realizados: gasto.pagos_realizados + 1,
+        };
+
+        const res = await api.patch(`/api/gastos/${id}/`, {
+          pagos_realizados: updatedGasto.pagos_realizados,
+        });
+
+        if (res.status === 200) {
+          // Clear cached details for this gasto since it's been updated
+          setGastoDetailsCache((prev) => {
+            const newCache = { ...prev };
+            delete newCache[id];
+            return newCache;
+          });
+          getGastos(); // Refresh the list
+          showToast(
+            `Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`,
+            "success"
+          );
+        }
+      } catch (error) {
+        console.error("Error paying cuota:", error);
+        showToast(
+          `Error: ${error.response?.data?.detail || error.message}`,
+          "error"
+        );
+      }
+    },
+    [gastos, showToast, getGastos]
+  );
+
   const handlePayCuotaFromModal = useCallback(
     async (id) => {
       const gasto = gastos.find((g) => g.id === id);
@@ -267,7 +312,7 @@ const GastosList = () => {
           );
         }
       } catch (error) {
-        console.error("Error paying installment:", error);
+        console.error("Error paying cuota:", error);
         showToast(
           `Error: ${error.response?.data?.detail || error.message}`,
           "error"
@@ -289,7 +334,41 @@ const GastosList = () => {
     navigate("/logout");
   };
 
-  const renderGroupedGastos = () => {
+  // Prefetch details for currently visible paginated gastos
+  useEffect(() => {
+    if (loading || allFilteredGastos.length === 0) return;
+
+    const prefetchVisibleGastos = async () => {
+      // Get the currently visible gastos based on pagination
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const visibleGastos = allFilteredGastos.slice(start, end);
+
+      // Prefetch details for visible gastos that aren't cached yet
+      const prefetchPromises = visibleGastos
+        .filter(gasto => !gastoDetailsCache[gasto.id])
+        .map(async (gasto) => {
+          try {
+            const response = await api.get(`/api/gastos/${gasto.id}/`);
+            setGastoDetailsCache((prev) => ({ ...prev, [gasto.id]: response.data }));
+          } catch (error) {
+            console.error(`Error prefetching gasto ${gasto.id}:`, error);
+          }
+        });
+
+      await Promise.all(prefetchPromises);
+    };
+
+    // Debounce the prefetch to avoid too many requests
+    const timer = setTimeout(() => {
+      prefetchVisibleGastos();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [allFilteredGastos, page, perPage, loading, gastoDetailsCache]);
+
+  // Memoized rendering of paginated gastos
+  const renderedGastos = useMemo(() => {
     if (groupBy) {
       return Object.entries(groupedGastos).map(([groupName, gastosInGroup]) => {
         const start = (page - 1) * perPage;
@@ -310,7 +389,7 @@ const GastosList = () => {
                   gasto={gasto}
                   onDelete={deleteGasto}
                   onEdit={handleShowDetail}
-                  onPayInstallment={handleShowDetail}
+                  onPayCuota={handlePayCuota}
                 />
               ))}
             </div>
@@ -329,13 +408,13 @@ const GastosList = () => {
               gasto={gasto}
               onDelete={deleteGasto}
               onEdit={handleShowDetail}
-              onPayInstallment={handleShowDetail}
+              onPayCuota={handlePayCuota}
             />
           ))}
         </div>
       );
     }
-  };
+  }, [groupBy, groupedGastos, page, perPage, allFilteredGastos, deleteGasto, handleShowDetail, handlePayCuota]);
 
   return (
     <LayoutWrapper user={user} onLogout={handleLogout}>
@@ -422,7 +501,7 @@ const GastosList = () => {
           </div>
         ) : allFilteredGastos.length > 0 ? (
           <div className="bg-white rounded-xl shadow p-6">
-            {renderGroupedGastos()}
+            {renderedGastos}
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow p-8">
