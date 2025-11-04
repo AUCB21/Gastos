@@ -79,9 +79,15 @@ const GastosList = () => {
         case "vendedor-desc":
           return b.vendedor.localeCompare(a.vendedor);
         case "estado-pendiente":
-          return (a.pagos_realizados === a.pagos_totales ? 1 : 0) - (b.pagos_realizados === b.pagos_totales ? 1 : 0);
+          return (
+            (a.pagos_realizados === a.pagos_totales ? 1 : 0) -
+            (b.pagos_realizados === b.pagos_totales ? 1 : 0)
+          );
         case "estado-pagado":
-          return (b.pagos_realizados === b.pagos_totales ? 1 : 0) - (a.pagos_realizados === a.pagos_totales ? 1 : 0);
+          return (
+            (b.pagos_realizados === b.pagos_totales ? 1 : 0) -
+            (a.pagos_realizados === a.pagos_totales ? 1 : 0)
+          );
         default:
           return 0;
       }
@@ -157,25 +163,25 @@ const GastosList = () => {
     const paid = {};
 
     gastos.forEach((gasto) => {
-      const currency = gasto.moneda || 'ARS';
+      const currency = gasto.moneda || "ARS";
       const montoTotal = parseFloat(gasto.monto);
-      
+
       // Initialize currency if not exists
       if (!totals[currency]) {
         totals[currency] = 0;
         pending[currency] = 0;
         paid[currency] = 0;
       }
-      
+
       // Add to total
       totals[currency] += montoTotal;
-      
+
       // Calculate pending amount for this gasto
       const cuotasPendientes = gasto.pagos_totales - gasto.pagos_realizados;
       const montoPorCuota = montoTotal / gasto.pagos_totales;
       const montoPendienteGasto = montoPorCuota * cuotasPendientes;
       pending[currency] += montoPendienteGasto;
-      
+
       // Calculate paid amount for this gasto
       const cuotasPagadas = gasto.pagos_realizados;
       const montoPagadoGasto = montoPorCuota * cuotasPagadas;
@@ -192,15 +198,17 @@ const GastosList = () => {
   // Helper function to render amounts by currency
   const renderAmountsByCurrency = useCallback((amountsByCurrency) => {
     const currencies = Object.keys(amountsByCurrency)
-      .filter(currency => amountsByCurrency[currency] > 0)
+      .filter((currency) => amountsByCurrency[currency] > 0)
       .sort(); // Sort currencies alphabetically
-    
+
     return currencies.map((currency) => (
       <p key={currency}>
-        ${amountsByCurrency[currency].toLocaleString('es-AR', { 
-          minimumFractionDigits: 2, 
-          maximumFractionDigits: 2 
-        })} {currency}
+        $
+        {amountsByCurrency[currency].toLocaleString("es-AR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}{" "}
+        {currency}
       </p>
     ));
   }, []);
@@ -366,11 +374,14 @@ const GastosList = () => {
 
       // Prefetch details for visible gastos that aren't cached yet
       const prefetchPromises = visibleGastos
-        .filter(gasto => !gastoDetailsCache[gasto.id])
+        .filter((gasto) => !gastoDetailsCache[gasto.id])
         .map(async (gasto) => {
           try {
             const response = await api.get(`/api/gastos/${gasto.id}/`);
-            setGastoDetailsCache((prev) => ({ ...prev, [gasto.id]: response.data }));
+            setGastoDetailsCache((prev) => ({
+              ...prev,
+              [gasto.id]: response.data,
+            }));
           } catch (error) {
             console.error(`Error prefetching gasto ${gasto.id}:`, error);
           }
@@ -434,7 +445,16 @@ const GastosList = () => {
         </div>
       );
     }
-  }, [groupBy, groupedGastos, page, perPage, allFilteredGastos, deleteGasto, handleShowDetail, handlePayCuota]);
+  }, [
+    groupBy,
+    groupedGastos,
+    page,
+    perPage,
+    allFilteredGastos,
+    deleteGasto,
+    handleShowDetail,
+    handlePayCuota,
+  ]);
 
   return (
     <LayoutWrapper user={user} onLogout={handleLogout}>
@@ -525,9 +545,7 @@ const GastosList = () => {
             <p className="text-center text-gray-500">Cargando gastos...</p>
           </div>
         ) : allFilteredGastos.length > 0 ? (
-          <div className="bg-white rounded-xl shadow p-6">
-            {renderedGastos}
-          </div>
+          <div className="bg-white rounded-xl shadow p-6">{renderedGastos}</div>
         ) : (
           <div className="bg-white rounded-xl shadow p-8">
             <div className="text-center">
