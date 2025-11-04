@@ -1,11 +1,14 @@
-import React, { memo } from "react";
+import React, { memo, useState, useCallback } from "react";
 import { Eye } from "lucide-react";
 import { formatLocalDate } from "../../../utils/dateUtils";
 import { getTextClass } from "../../../utils/colorSystem";
 
-const Gasto = memo(({ gasto, onDelete, onEdit, onPayInstallment }) => {
+const Gasto = memo(({ gasto, onDelete, onEdit, onPayCuota }) => {
     // Fix timezone issue: parse date in local timezone instead of UTC
     const formattedDate = formatLocalDate(gasto.fecha_gasto);
+    
+    // State for payment confirmation
+    const [isConfirming, setIsConfirming] = useState(false);
     
     // Determine payment status
     const isPaid = gasto.pagos_realizados === gasto.pagos_totales;
@@ -18,6 +21,22 @@ const Gasto = memo(({ gasto, onDelete, onEdit, onPayInstallment }) => {
     const montoPagado = gasto.monto * (gasto.pagos_realizados / gasto.pagos_totales);
 
     const montoTotal = gasto.monto;
+
+    // Handle payment button click
+    const handlePaymentClick = useCallback(() => {
+      if (isConfirming) {
+        // Second click - confirm payment
+        onPayCuota(gasto.id);
+        setIsConfirming(false);
+      } else {
+        // First click - show confirmation
+        setIsConfirming(true);
+        // Auto-reset after 3 seconds if not confirmed
+        setTimeout(() => {
+          setIsConfirming(false);
+        }, 3000);
+      }
+    }, [isConfirming, onPayCuota, gasto.id]);
 
   return (
     <div className="bg-white shadow rounded-xl p-4 flex justify-between items-center">
@@ -68,10 +87,14 @@ const Gasto = memo(({ gasto, onDelete, onEdit, onPayInstallment }) => {
         </div>
         {canPayCuota && (
           <button 
-            onClick={() => onPayInstallment(gasto.id)}
-            className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-200"
+            onClick={handlePaymentClick}
+            className={`text-white text-sm font-medium px-4 py-2 rounded-lg transition-all duration-200 ${
+              isConfirming 
+                ? 'bg-yellow-500 hover:bg-yellow-600 animate-pulse' 
+                : 'bg-green-500 hover:bg-green-600'
+            }`}
           >
-            Pagar cuota
+            {isConfirming ? '¿Confirmar?' : 'Pagar cuota'}
           </button>
         )}
         <button 

@@ -79,7 +79,7 @@ const GastoDetail = () => {
         showToast(`Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`, "success");
       }
     } catch (error) {
-      console.error("Error paying installment:", error);
+      console.error("Error paying cuota:", error);
       showToast(`Error: ${error.response?.data?.detail || error.message}`, "error");
     }
   };

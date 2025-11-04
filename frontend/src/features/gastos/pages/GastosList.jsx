@@ -13,7 +13,7 @@ const GastosList = () => {
   const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [estado, setEstado] = useState("Todos");
+  const [orderBy, setOrderBy] = useState(null); // Default: newest first
   const [groupBy, setGroupBy] = useState(null);
   const [page, setPage] = useState(1);
   const [toast, setToast] = useState(null);
@@ -22,7 +22,7 @@ const GastosList = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 
-  const showToast = useCallback((message, type = 'success') => {
+  const showToast = useCallback((message, type = "success") => {
     setToast({ message, type });
   }, []);
 
@@ -49,22 +49,52 @@ const GastosList = () => {
     getGastos();
   }, [getGastos]);
 
-  // Memoized filtering logic
+  // Memoized filtering and sorting logic
   const filteredGastos = useMemo(() => {
-    return gastos.filter((gasto) => {
-      const matchesSearch = 
+    // Filter by search
+    const filtered = gastos.filter((gasto) => {
+      const matchesSearch =
         gasto.vendedor.toLowerCase().includes(search.toLowerCase()) ||
-        (gasto.categoria?.name || gasto.categoria || '').toLowerCase().includes(search.toLowerCase()) ||
-        (gasto.comentarios || '').toLowerCase().includes(search.toLowerCase());
-      
-      const isPaid = gasto.pagos_realizados === gasto.pagos_totales;
-      const matchesStatus = estado === "Todos" || 
-        (estado === "Pagado" && isPaid) || 
-        (estado === "Pendiente" && !isPaid);
-      
-      return matchesSearch && matchesStatus;
+        (gasto.categoria?.name || gasto.categoria || "")
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        (gasto.comentarios || "").toLowerCase().includes(search.toLowerCase());
+
+      return matchesSearch;
     });
-  }, [gastos, search, estado]);
+
+    // Sort based on orderBy
+    const sorted = [...filtered].sort((a, b) => {
+      switch (orderBy) {
+        case "fecha-desc":
+          return new Date(b.fecha_gasto) - new Date(a.fecha_gasto);
+        case "fecha-asc":
+          return new Date(a.fecha_gasto) - new Date(b.fecha_gasto);
+        case "monto-desc":
+          return b.monto - a.monto;
+        case "monto-asc":
+          return a.monto - b.monto;
+        case "vendedor-asc":
+          return a.vendedor.localeCompare(b.vendedor);
+        case "vendedor-desc":
+          return b.vendedor.localeCompare(a.vendedor);
+        case "estado-pendiente":
+          return (
+            (a.pagos_realizados === a.pagos_totales ? 1 : 0) -
+            (b.pagos_realizados === b.pagos_totales ? 1 : 0)
+          );
+        case "estado-pagado":
+          return (
+            (b.pagos_realizados === b.pagos_totales ? 1 : 0) -
+            (a.pagos_realizados === a.pagos_totales ? 1 : 0)
+          );
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [gastos, search, orderBy]);
 
   // Memoized grouping logic
   const groupedGastos = useMemo(() => {
@@ -77,17 +107,24 @@ const GastosList = () => {
 
       switch (groupBy) {
         case "categoria":
-          groupKey = gasto.categoria?.name || gasto.categoria || "Sin categoría";
+          groupKey =
+            gasto.categoria?.name || gasto.categoria || "Sin categoría";
           break;
         case "vendedor":
           groupKey = gasto.vendedor || "Sin vendedor";
           break;
         case "estado":
-          groupKey = gasto.pagos_realizados === gasto.pagos_totales ? "Pagado" : "Pendiente";
+          groupKey =
+            gasto.pagos_realizados === gasto.pagos_totales
+              ? "Pagado"
+              : "Pendiente";
           break;
         case "mes": {
           const fecha = new Date(gasto.fecha_gasto);
-          groupKey = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+          groupKey = fecha.toLocaleDateString("es-AR", {
+            month: "long",
+            year: "numeric",
+          });
           break;
         }
         default:
@@ -103,7 +140,7 @@ const GastosList = () => {
     // Sort groups by name
     const sortedGroupKeys = Object.keys(grouped).sort();
     const sortedGrouped = {};
-    sortedGroupKeys.forEach(key => {
+    sortedGroupKeys.forEach((key) => {
       sortedGrouped[key] = grouped[key];
     });
 
@@ -115,122 +152,254 @@ const GastosList = () => {
     const all = Object.values(groupedGastos).flat();
     return {
       allFilteredGastos: all,
-      totalPages: Math.ceil(all.length / perPage)
+      totalPages: Math.ceil(all.length / perPage),
     };
   }, [groupedGastos, perPage]);
 
-  // Memoized totals calculation
-  const { totalAmount, paidAmount, pendingAmount } = useMemo(() => {
-    const total = gastos.reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
-    const paid = gastos
-      .filter(g => g.pagos_realizados === g.pagos_totales)
-      .reduce((sum, gasto) => sum + parseFloat(gasto.monto), 0);
-    
-    // Calculate pending amount: sum of all pending cuotas across all gastos
-    const pending = gastos.reduce((sum, gasto) => {
-      const montoTotal = parseFloat(gasto.monto).toFixed(2);
-      const cuotasTotales = gasto.pagos_totales;
-      const cuotasAbonadas = gasto.pagos_realizados;
-      const cuotasPendientes = cuotasTotales - cuotasAbonadas;
-      const montoPorCuota = (montoTotal / cuotasTotales).toFixed(2);
+  // Memoized totals calculation grouped by currency
+  const { totalByCurrency, paidByCurrency, pendingByCurrency } = useMemo(() => {
+    const totals = {};
+    const pending = {};
+    const paid = {};
+
+    gastos.forEach((gasto) => {
+      const currency = gasto.moneda || "ARS";
+      const montoTotal = parseFloat(gasto.monto);
+
+      // Initialize currency if not exists
+      if (!totals[currency]) {
+        totals[currency] = 0;
+        pending[currency] = 0;
+        paid[currency] = 0;
+      }
+
+      // Add to total
+      totals[currency] += montoTotal;
+
+      // Calculate pending amount for this gasto
+      const cuotasPendientes = gasto.pagos_totales - gasto.pagos_realizados;
+      const montoPorCuota = montoTotal / gasto.pagos_totales;
       const montoPendienteGasto = montoPorCuota * cuotasPendientes;
-      return sum + montoPendienteGasto;
-    }, 0);
-    
+      pending[currency] += montoPendienteGasto;
+
+      // Calculate paid amount for this gasto
+      const cuotasPagadas = gasto.pagos_realizados;
+      const montoPagadoGasto = montoPorCuota * cuotasPagadas;
+      paid[currency] += montoPagadoGasto;
+    });
+
     return {
-      totalAmount: total,
-      paidAmount: paid,
-      pendingAmount: pending
+      totalByCurrency: totals,
+      paidByCurrency: paid,
+      pendingByCurrency: pending,
     };
   }, [gastos]);
 
-  const deleteGasto = useCallback(async (id) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este gasto?")) {
+  // Helper function to render amounts by currency
+  const renderAmountsByCurrency = useCallback((amountsByCurrency) => {
+    const currencies = Object.keys(amountsByCurrency)
+      .filter((currency) => amountsByCurrency[currency] > 0)
+      .sort(); // Sort currencies alphabetically
+
+    return currencies.map((currency) => (
+      <p key={currency}>
+        $
+        {amountsByCurrency[currency].toLocaleString("es-AR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}{" "}
+        {currency}
+      </p>
+    ));
+  }, []);
+
+  const deleteGasto = useCallback(
+    async (id) => {
+      if (window.confirm("¿Estás seguro de que quieres eliminar este gasto?")) {
+        try {
+          const res = await api.delete(`/api/gastos/${id}/`);
+          if (res.status === 204) {
+            // Clear cached details for this gasto since it's been deleted
+            setGastoDetailsCache((prev) => {
+              const newCache = { ...prev };
+              delete newCache[id];
+              return newCache;
+            });
+            getGastos(); // Refresh the list
+            alert("Gasto eliminado exitosamente.");
+          }
+        } catch (error) {
+          console.error("Error deleting gasto:", error);
+          alert(`Error: ${error.message}`);
+        }
+      }
+    },
+    [getGastos]
+  );
+
+  const handleShowDetail = useCallback(
+    async (id) => {
       try {
-        const res = await api.delete(`/api/gastos/${id}/`);
-        if (res.status === 204) {
-          // Clear cached details for this gasto since it's been deleted
-          setGastoDetailsCache(prev => {
+        // Check if we have cached details
+        if (gastoDetailsCache[id]) {
+          setSelectedGasto(gastoDetailsCache[id]);
+          return;
+        }
+
+        // If not cached, fetch full gasto details including related medio_pago_info object
+        const response = await api.get(`/api/gastos/${id}/`);
+        const fullGastoData = response.data;
+
+        // Cache the fetched details
+        setGastoDetailsCache((prev) => ({ ...prev, [id]: fullGastoData }));
+        setSelectedGasto(fullGastoData);
+      } catch (error) {
+        console.error("Error fetching gasto details:", error);
+        showToast("Error al cargar los detalles del gasto", "error");
+      }
+    },
+    [showToast, gastoDetailsCache]
+  );
+
+  // Handler for direct payment from list (without modal)
+  const handlePayCuota = useCallback(
+    async (id) => {
+      const gasto = gastos.find((g) => g.id === id);
+      if (!gasto) return;
+
+      if (gasto.pagos_realizados >= gasto.pagos_totales) {
+        showToast("Este gasto ya está completamente pagado.", "warning");
+        return;
+      }
+
+      try {
+        const updatedGasto = {
+          ...gasto,
+          pagos_realizados: gasto.pagos_realizados + 1,
+        };
+
+        const res = await api.patch(`/api/gastos/${id}/`, {
+          pagos_realizados: updatedGasto.pagos_realizados,
+        });
+
+        if (res.status === 200) {
+          // Clear cached details for this gasto since it's been updated
+          setGastoDetailsCache((prev) => {
             const newCache = { ...prev };
             delete newCache[id];
             return newCache;
           });
           getGastos(); // Refresh the list
-          alert("Gasto eliminado exitosamente.");
+          showToast(
+            `Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`,
+            "success"
+          );
         }
       } catch (error) {
-        console.error("Error deleting gasto:", error);
-        alert(`Error: ${error.message}`);
+        console.error("Error paying cuota:", error);
+        showToast(
+          `Error: ${error.response?.data?.detail || error.message}`,
+          "error"
+        );
       }
-    }
-  }, [getGastos]);
+    },
+    [gastos, showToast, getGastos]
+  );
 
-  const handleShowDetail = useCallback(async (id) => {
-    try {
-      // Check if we have cached details
-      if (gastoDetailsCache[id]) {
-        setSelectedGasto(gastoDetailsCache[id]);
+  const handlePayCuotaFromModal = useCallback(
+    async (id) => {
+      const gasto = gastos.find((g) => g.id === id);
+      if (!gasto) return;
+
+      if (gasto.pagos_realizados >= gasto.pagos_totales) {
+        showToast("Este gasto ya está completamente pagado.", "warning");
         return;
       }
 
-      // If not cached, fetch full gasto details including related medio_pago_info object
-      const response = await api.get(`/api/gastos/${id}/`);
-      const fullGastoData = response.data;
-      
-      // Cache the fetched details
-      setGastoDetailsCache(prev => ({ ...prev, [id]: fullGastoData }));
-      setSelectedGasto(fullGastoData);
-    } catch (error) {
-      console.error("Error fetching gasto details:", error);
-      showToast("Error al cargar los detalles del gasto", "error");
-    }
-  }, [showToast, gastoDetailsCache]);
+      try {
+        const updatedGasto = {
+          ...gasto,
+          pagos_realizados: gasto.pagos_realizados + 1,
+        };
 
-  const handlePayCuotaFromModal = useCallback(async (id) => {
-    const gasto = gastos.find(g => g.id === id);
-    if (!gasto) return;
-
-    if (gasto.pagos_realizados >= gasto.pagos_totales) {
-      showToast("Este gasto ya está completamente pagado.", "warning");
-      return;
-    }
-
-    try {
-      const updatedGasto = {
-        ...gasto,
-        pagos_realizados: gasto.pagos_realizados + 1
-      };
-      
-      const res = await api.patch(`/api/gastos/${id}/`, {
-        pagos_realizados: updatedGasto.pagos_realizados
-      });
-      
-      if (res.status === 200) {
-        // Clear cached details for this gasto since it's been updated
-        setGastoDetailsCache(prev => {
-          const newCache = { ...prev };
-          delete newCache[id];
-          return newCache;
+        const res = await api.patch(`/api/gastos/${id}/`, {
+          pagos_realizados: updatedGasto.pagos_realizados,
         });
-        getGastos(); // Refresh the list
-        showToast(`Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`, "success");
-      }
-    } catch (error) {
-      console.error("Error paying installment:", error);
-      showToast(`Error: ${error.response?.data?.detail || error.message}`, "error");
-    }
-  }, [gastos, showToast, getGastos]);
 
-  const handleEditFromModal = useCallback((id) => {
-    setSelectedGasto(null);
-    navigate(`/gastos/${id}`);
-  }, [navigate]);
+        if (res.status === 200) {
+          // Clear cached details for this gasto since it's been updated
+          setGastoDetailsCache((prev) => {
+            const newCache = { ...prev };
+            delete newCache[id];
+            return newCache;
+          });
+          getGastos(); // Refresh the list
+          showToast(
+            `Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`,
+            "success"
+          );
+        }
+      } catch (error) {
+        console.error("Error paying cuota:", error);
+        showToast(
+          `Error: ${error.response?.data?.detail || error.message}`,
+          "error"
+        );
+      }
+    },
+    [gastos, showToast, getGastos]
+  );
+
+  const handleEditFromModal = useCallback(
+    (id) => {
+      setSelectedGasto(null);
+      navigate(`/gastos/${id}`);
+    },
+    [navigate]
+  );
 
   const handleLogout = () => {
     navigate("/logout");
   };
 
-  const renderGroupedGastos = () => {
+  // Prefetch details for currently visible paginated gastos
+  useEffect(() => {
+    if (loading || allFilteredGastos.length === 0) return;
+
+    const prefetchVisibleGastos = async () => {
+      // Get the currently visible gastos based on pagination
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const visibleGastos = allFilteredGastos.slice(start, end);
+
+      // Prefetch details for visible gastos that aren't cached yet
+      const prefetchPromises = visibleGastos
+        .filter((gasto) => !gastoDetailsCache[gasto.id])
+        .map(async (gasto) => {
+          try {
+            const response = await api.get(`/api/gastos/${gasto.id}/`);
+            setGastoDetailsCache((prev) => ({
+              ...prev,
+              [gasto.id]: response.data,
+            }));
+          } catch (error) {
+            console.error(`Error prefetching gasto ${gasto.id}:`, error);
+          }
+        });
+
+      await Promise.all(prefetchPromises);
+    };
+
+    // Debounce the prefetch to avoid too many requests
+    const timer = setTimeout(() => {
+      prefetchVisibleGastos();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [allFilteredGastos, page, perPage, loading, gastoDetailsCache]);
+
+  // Memoized rendering of paginated gastos
+  const renderedGastos = useMemo(() => {
     if (groupBy) {
       return Object.entries(groupedGastos).map(([groupName, gastosInGroup]) => {
         const start = (page - 1) * perPage;
@@ -251,7 +420,7 @@ const GastosList = () => {
                   gasto={gasto}
                   onDelete={deleteGasto}
                   onEdit={handleShowDetail}
-                  onPayInstallment={handleShowDetail}
+                  onPayCuota={handlePayCuota}
                 />
               ))}
             </div>
@@ -270,13 +439,22 @@ const GastosList = () => {
               gasto={gasto}
               onDelete={deleteGasto}
               onEdit={handleShowDetail}
-              onPayInstallment={handleShowDetail}
+              onPayCuota={handlePayCuota}
             />
           ))}
         </div>
       );
     }
-  };
+  }, [
+    groupBy,
+    groupedGastos,
+    page,
+    perPage,
+    allFilteredGastos,
+    deleteGasto,
+    handleShowDetail,
+    handlePayCuota,
+  ]);
 
   return (
     <LayoutWrapper user={user} onLogout={handleLogout}>
@@ -284,9 +462,9 @@ const GastosList = () => {
         {/* Header */}
         <header className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-800">Lista de Gastos</h1>
-          <button 
+          <button
             onClick={() => delayedNavigate(navigate, "/gastos/add", 250)}
-            className={getButtonClass('formPrimary', 'form')}
+            className={getButtonClass("formPrimary", "form")}
           >
             + Crear Nuevo Gasto
           </button>
@@ -296,15 +474,21 @@ const GastosList = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Total</p>
-            <p className="text-xl font-bold text-gray-800">${totalAmount.toLocaleString()}</p>
+            <p className="text-xl font-bold text-gray-800">
+              {renderAmountsByCurrency(totalByCurrency)}
+            </p>
           </div>
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Pagados</p>
-            <p className="text-xl font-bold text-green-600">${paidAmount.toLocaleString()}</p>
+            <p className="text-xl font-bold text-green-600">
+              {renderAmountsByCurrency(paidByCurrency)}
+            </p>
           </div>
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Pendientes</p>
-            <p className="text-xl font-bold text-orange-500">${pendingAmount.toLocaleString()}</p>
+            <p className="text-xl font-bold text-orange-500">
+              {renderAmountsByCurrency(pendingByCurrency)}
+            </p>
           </div>
         </div>
 
@@ -323,15 +507,20 @@ const GastosList = () => {
             />
             <select
               className="px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-              value={estado}
+              value={orderBy}
               onChange={(e) => {
-                setEstado(e.target.value);
+                setOrderBy(e.target.value);
                 setPage(1);
               }}
             >
-              <option value="Todos">Todos</option>
-              <option value="Pagado">Pagados</option>
-              <option value="Pendiente">Pendientes</option>
+              <option value="fecha-desc">Más recientes</option>
+              <option value="fecha-asc">Más antiguos</option>
+              <option value="monto-desc">Mayor monto</option>
+              <option value="monto-asc">Menor monto</option>
+              <option value="vendedor-asc">Vendedor (A-Z)</option>
+              <option value="vendedor-desc">Vendedor (Z-A)</option>
+              <option value="estado-pendiente">Pendientes primero</option>
+              <option value="estado-pagado">Pagados primero</option>
             </select>
             <select
               className="px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -356,19 +545,19 @@ const GastosList = () => {
             <p className="text-center text-gray-500">Cargando gastos...</p>
           </div>
         ) : allFilteredGastos.length > 0 ? (
-          <div className="bg-white rounded-xl shadow p-6">
-            {renderGroupedGastos()}
-          </div>
+          <div className="bg-white rounded-xl shadow p-6">{renderedGastos}</div>
         ) : (
           <div className="bg-white rounded-xl shadow p-8">
             <div className="text-center">
               <p className="text-gray-500 mb-4">
-                {search || estado !== "Todos" ? "No se encontraron resultados" : "No hay gastos para mostrar."}
+                {search
+                  ? "No se encontraron resultados"
+                  : "No hay gastos para mostrar."}
               </p>
-              {!search && estado === "Todos" && (
+              {!search && (
                 <button
                   onClick={() => delayedNavigate(navigate, "/gastos/add", 250)}
-                  className={getButtonClass('formPrimary', 'form')}
+                  className={getButtonClass("formPrimary", "form")}
                 >
                   Crear tu primer gasto
                 </button>
@@ -400,7 +589,7 @@ const GastosList = () => {
           </div>
         )}
       </div>
-      
+
       {/* Gasto Detail Modal */}
       {selectedGasto && (
         <GastoDetailModal
@@ -410,7 +599,7 @@ const GastosList = () => {
           onEdit={handleEditFromModal}
         />
       )}
-      
+
       {/* Toast Notification */}
       {toast && (
         <Toast
