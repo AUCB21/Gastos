@@ -129,30 +129,61 @@ const GastosList = () => {
     };
   }, [groupedGastos, perPage]);
 
-  // Memoized totals calculation
-  const { totalAmount, paidAmount, pendingAmount } = useMemo(() => {
-    const total = gastos.reduce(
-      (sum, gasto) => sum + parseFloat(gasto.monto),
-      0
-    );
+  // Memoized totals calculation grouped by currency
+  const { totalByCurrency, paidByCurrency, pendingByCurrency } = useMemo(() => {
+    const totals = {};
+    const pending = {};
+    const paid = {};
 
-    // Calculate pending amount: sum of all pending cuotas across all gastos
-    const pending = gastos.reduce((sum, gasto) => {
+    gastos.forEach((gasto) => {
+      const currency = gasto.moneda || 'ARS';
       const montoTotal = parseFloat(gasto.monto);
+      
+      // Initialize currency if not exists
+      if (!totals[currency]) {
+        totals[currency] = 0;
+        pending[currency] = 0;
+        paid[currency] = 0;
+      }
+      
+      // Add to total
+      totals[currency] += montoTotal;
+      
+      // Calculate pending amount for this gasto
       const cuotasPendientes = gasto.pagos_totales - gasto.pagos_realizados;
-      const montoPorCuota = (montoTotal / gasto.pagos_totales).toFixed(2);
+      const montoPorCuota = montoTotal / gasto.pagos_totales;
       const montoPendienteGasto = montoPorCuota * cuotasPendientes;
-      return sum + montoPendienteGasto;
-    }, 0);
-
-    const paid = total - pending;
+      pending[currency] += montoPendienteGasto;
+      
+      // Calculate paid amount for this gasto
+      const cuotasPagadas = gasto.pagos_realizados;
+      const montoPagadoGasto = montoPorCuota * cuotasPagadas;
+      paid[currency] += montoPagadoGasto;
+    });
 
     return {
-      totalAmount: total,
-      paidAmount: paid,
-      pendingAmount: pending,
+      totalByCurrency: totals,
+      paidByCurrency: paid,
+      pendingByCurrency: pending,
     };
   }, [gastos]);
+
+  // Helper function to render amounts by currency
+  const renderAmountsByCurrency = useCallback((amountsByCurrency) => {
+    const currencies = Object.keys(amountsByCurrency)
+      .filter(currency => amountsByCurrency[currency] > 0)
+      .sort(); // Sort currencies alphabetically
+    
+    return currencies.map((currency, index) => (
+      <span key={currency}>
+        {currency} ${amountsByCurrency[currency].toLocaleString('es-AR', { 
+          minimumFractionDigits: 2, 
+          maximumFractionDigits: 2 
+        })}
+        {index < currencies.length - 1 && <span className="mx-2">|</span>}
+      </span>
+    ));
+  }, []);
 
   const deleteGasto = useCallback(
     async (id) => {
@@ -325,19 +356,19 @@ const GastosList = () => {
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Total</p>
             <p className="text-xl font-bold text-gray-800">
-              ${totalAmount.toLocaleString()}
+              {renderAmountsByCurrency(totalByCurrency)}
             </p>
           </div>
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Pagados</p>
             <p className="text-xl font-bold text-green-600">
-              ${paidAmount.toLocaleString()}
+              {renderAmountsByCurrency(paidByCurrency)}
             </p>
           </div>
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Pendientes</p>
             <p className="text-xl font-bold text-orange-500">
-              ${pendingAmount.toLocaleString()}
+              {renderAmountsByCurrency(pendingByCurrency)}
             </p>
           </div>
         </div>
