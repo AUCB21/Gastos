@@ -13,7 +13,7 @@ const GastosList = () => {
   const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [estado, setEstado] = useState("Todos");
+  const [orderBy, setOrderBy] = useState(null); // Default: newest first
   const [groupBy, setGroupBy] = useState(null);
   const [page, setPage] = useState(1);
   const [toast, setToast] = useState(null);
@@ -49,9 +49,10 @@ const GastosList = () => {
     getGastos();
   }, [getGastos]);
 
-  // Memoized filtering logic
+  // Memoized filtering and sorting logic
   const filteredGastos = useMemo(() => {
-    return gastos.filter((gasto) => {
+    // Filter by search
+    const filtered = gastos.filter((gasto) => {
       const matchesSearch =
         gasto.vendedor.toLowerCase().includes(search.toLowerCase()) ||
         (gasto.categoria?.name || gasto.categoria || "")
@@ -59,15 +60,35 @@ const GastosList = () => {
           .includes(search.toLowerCase()) ||
         (gasto.comentarios || "").toLowerCase().includes(search.toLowerCase());
 
-      const isPaid = gasto.pagos_realizados === gasto.pagos_totales;
-      const matchesStatus =
-        estado === "Todos" ||
-        (estado === "Pagado" && isPaid) ||
-        (estado === "Pendiente" && !isPaid);
-
-      return matchesSearch && matchesStatus;
+      return matchesSearch;
     });
-  }, [gastos, search, estado]);
+
+    // Sort based on orderBy
+    const sorted = [...filtered].sort((a, b) => {
+      switch (orderBy) {
+        case "fecha-desc":
+          return new Date(b.fecha_gasto) - new Date(a.fecha_gasto);
+        case "fecha-asc":
+          return new Date(a.fecha_gasto) - new Date(b.fecha_gasto);
+        case "monto-desc":
+          return b.monto - a.monto;
+        case "monto-asc":
+          return a.monto - b.monto;
+        case "vendedor-asc":
+          return a.vendedor.localeCompare(b.vendedor);
+        case "vendedor-desc":
+          return b.vendedor.localeCompare(a.vendedor);
+        case "estado-pendiente":
+          return (a.pagos_realizados === a.pagos_totales ? 1 : 0) - (b.pagos_realizados === b.pagos_totales ? 1 : 0);
+        case "estado-pagado":
+          return (b.pagos_realizados === b.pagos_totales ? 1 : 0) - (a.pagos_realizados === a.pagos_totales ? 1 : 0);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [gastos, search, orderBy]);
 
   // Memoized grouping logic
   const groupedGastos = useMemo(() => {
@@ -174,14 +195,13 @@ const GastosList = () => {
       .filter(currency => amountsByCurrency[currency] > 0)
       .sort(); // Sort currencies alphabetically
     
-    return currencies.map((currency, index) => (
-      <span key={currency}>
-        {currency} ${amountsByCurrency[currency].toLocaleString('es-AR', { 
+    return currencies.map((currency) => (
+      <p key={currency}>
+        ${amountsByCurrency[currency].toLocaleString('es-AR', { 
           minimumFractionDigits: 2, 
           maximumFractionDigits: 2 
-        })}
-        {index < currencies.length - 1 && <span className="mx-2">|</span>}
-      </span>
+        })} {currency}
+      </p>
     ));
   }, []);
 
@@ -467,15 +487,20 @@ const GastosList = () => {
             />
             <select
               className="px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-              value={estado}
+              value={orderBy}
               onChange={(e) => {
-                setEstado(e.target.value);
+                setOrderBy(e.target.value);
                 setPage(1);
               }}
             >
-              <option value="Todos">Todos</option>
-              <option value="Pagado">Pagados</option>
-              <option value="Pendiente">Pendientes</option>
+              <option value="fecha-desc">Más recientes</option>
+              <option value="fecha-asc">Más antiguos</option>
+              <option value="monto-desc">Mayor monto</option>
+              <option value="monto-asc">Menor monto</option>
+              <option value="vendedor-asc">Vendedor (A-Z)</option>
+              <option value="vendedor-desc">Vendedor (Z-A)</option>
+              <option value="estado-pendiente">Pendientes primero</option>
+              <option value="estado-pagado">Pagados primero</option>
             </select>
             <select
               className="px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -507,11 +532,11 @@ const GastosList = () => {
           <div className="bg-white rounded-xl shadow p-8">
             <div className="text-center">
               <p className="text-gray-500 mb-4">
-                {search || estado !== "Todos"
+                {search
                   ? "No se encontraron resultados"
                   : "No hay gastos para mostrar."}
               </p>
-              {!search && estado === "Todos" && (
+              {!search && (
                 <button
                   onClick={() => delayedNavigate(navigate, "/gastos/add", 250)}
                   className={getButtonClass("formPrimary", "form")}
