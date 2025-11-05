@@ -142,7 +142,7 @@ const GastosList = () => {
     const paid = {};
 
     gastos.forEach((gasto) => {
-      const currency = gasto.moneda || "ARS";
+      const currency = gasto.moneda;
       const montoTotal = parseFloat(gasto.monto);
 
       // Initialize currency if not exists
@@ -440,17 +440,18 @@ const GastosList = () => {
     <LayoutWrapper user={user} onLogout={handleLogout}>
       <div className="space-y-6">
         {/* Header */}
-        <header className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Lista de Gastos</h1>
+        <header className="flex justify-center items-center relative">
+          <h1 className="text-2xl font-bold text-gray-800">Listado de Gastos</h1>
           <button
             onClick={() => delayedNavigate(navigate, "/gastos/add", 250)}
-            className={getButtonClass("formPrimary", "form")}
+            className={`${getButtonClass("formPrimary", "form")} absolute right-0`}
           >
             + Crear Nuevo Gasto
           </button>
         </header>
 
         {/* Métricas */}
+        {/* <h2 className="text-lg font-semibold text-gray-700 mb-4">Montos del mes</h2> */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Total</p>
