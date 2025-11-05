@@ -1,5 +1,5 @@
 import React from "react";
-import AppNavigation from "../AppNavigation";
+import AppNavigation from "./AppNavigation";
 
 /**
  * Simplified Layout Wrapper using unified AppNavigation component

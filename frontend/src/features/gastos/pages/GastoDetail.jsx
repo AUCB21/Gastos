@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, DollarSign, User, Tag, MessageSquare, CreditCard, Edit, ArrowLeft } from 'lucide-react';
-import api from '../../../api';
-import LayoutWrapper from '../../../shared/components/wrappers/LayoutWrapper';
-import { EditModal } from '../../../shared/components/Modal';
-import Toast from '../../../shared/components/Toast';
-import { useUserData } from '../../../hooks/useUserData';
-import { formatLocalDate } from '../../../utils/dateUtils';
-import delayedNavigate from '../../../hooks/delayedNavigate';
-import { getButtonClass } from '../../../utils/colorSystem';
+import api from '@/api';
+import { LayoutWrapper } from '@/shared/components/layout';
+import { EditModal, Toast } from '@/shared/components/ui';
+import { useUserData } from '@/hooks/useUserData';
+import { formatLocalDate } from '@/utils/dateUtils';
+import delayedNavigate from '@/hooks/delayedNavigate';
+import { getButtonClass } from '@/utils/colorSystem';
 
 const GastoDetail = () => {
   const { id } = useParams();

@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import MPForm from "../components/MPForm";
-import api from "../../../api";
-import { ACCESS_TOKEN } from "../../../constants";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
-import { useUserData } from "../../../hooks/useUserData";
-import { componentStyles } from "../../../utils/colorSystem";const MediosPagoPage = () => {
+import api from "@/api";
+import { ACCESS_TOKEN } from "@/constants";
+import { LayoutWrapper } from "@/shared/components/layout";
+import { useUserData } from "@/hooks/useUserData";
+import { componentStyles } from "@/utils/colorSystem";const MediosPagoPage = () => {
   const { user } = useUserData();
   const navigate = useNavigate();
 

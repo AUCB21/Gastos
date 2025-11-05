@@ -22,12 +22,12 @@ import {
   Bell,
   Search,
 } from "lucide-react";
-import { componentStyles } from "../../utils/colorSystem";
+import { componentStyles } from "../../../utils/colorSystem";
 import {
   NAVIGATION_ITEMS,
   GROUP_BY_OPTIONS,
   isActiveNavigation,
-} from "../../constants/navigation";
+} from "../../../constants/navigation";
 
 const AppNavigation = ({
   user,

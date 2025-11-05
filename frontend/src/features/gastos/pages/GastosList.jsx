@@ -1,14 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../api";
+import api from "@/api";
 import Gasto from "../components/Gasto";
 import GastoDetailModal from "../components/GastoDetailModal";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
-import { useUserData } from "../../../hooks/useUserData";
-import { useGastos } from "../../../hooks/useGastos";
-import delayedNavigate from "../../../hooks/delayedNavigate";
-import { getButtonClass } from "../../../utils/colorSystem";
-import Toast from "../../../shared/components/Toast";
+import { LayoutWrapper } from "@/shared/components/layout";
+import { Toast } from "@/shared/components/ui";
+import { useUserData } from "@/hooks/useUserData";
+import { useGastos } from "@/hooks/useGastos";
+import delayedNavigate from "@/hooks/delayedNavigate";
+import { getButtonClass } from "@/utils/colorSystem";
 
 const GastosList = () => {
   const { gastos, loading, fetchGastos } = useGastos();

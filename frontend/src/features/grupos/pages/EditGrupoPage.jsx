@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../../api";
-import { getButtonClass } from "../../../utils/colorSystem";
-import GrupoForm from "../components/GrupoForm";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
-import { useUserData } from "../../../hooks/useUserData";
 import { Loader, AlertCircle } from "lucide-react";
+import api from "@/api";
+import { getButtonClass } from "@/utils/colorSystem";
+import GrupoForm from "../components/GrupoForm";
+import { LayoutWrapper } from "@/shared/components/layout";
+import { useUserData } from "@/hooks/useUserData";
 
 const EditGrupoPage = () => {
   const { id } = useParams();

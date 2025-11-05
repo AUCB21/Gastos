@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Trash2, Edit, Plus } from 'lucide-react';
-import { componentStyles, getButtonClass } from '../../utils/colorSystem';
+import { componentStyles, getButtonClass } from '../../../utils/colorSystem';
 
 // Base Modal Component
 const Modal = ({ 

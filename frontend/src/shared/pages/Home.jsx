@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, memo, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api"; 
-import LayoutWrapper from "../components/wrappers/LayoutWrapper";
+import { LayoutWrapper } from "../components/layout";
 import { useUserData } from "../../hooks/useUserData";
 import { useGastos } from "../../hooks/useGastos";
 import delayedNavigate from "../../hooks/delayedNavigate";
