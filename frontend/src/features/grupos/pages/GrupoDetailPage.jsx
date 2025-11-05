@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import GrupoDetail from "../components/GrupoDetail";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { LayoutWrapper } from "../../../shared/components/layout";
 import { useUserData } from "../../../hooks/useUserData";
 
 const GrupoDetailPage = () => {

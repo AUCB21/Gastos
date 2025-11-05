@@ -1,9 +1,9 @@
 import { useState } from "react";
-import api from "../../api";
+import api from "../../../api";
 import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
-import LoadingIndicator from "./LoadingIndicator";
-import { getTextClass, colors } from "../../utils/colorSystem";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../../constants";
+import { LoadingIndicator } from "../ui";
+import { getTextClass, colors } from "../../../utils/colorSystem";
 
 const LoginForm = ({route, method}) => {
   const [username, setUsername] = useState("");

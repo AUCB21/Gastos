@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import MediosPago from "../components/MediosPago";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { LayoutWrapper } from "../../../shared/components/layout";
 import { useUserData } from "../../../hooks/useUserData";
 import delayedNavigate from "../../../hooks/delayedNavigate";
 
@@ -49,7 +49,7 @@ const MediosPagoList = () => {
       let groupKey;
 
       switch (groupByValue) {
-        case "tipo":
+        case "tipo": {
           const tipoNames = {
             TC: "Tarjetas de Crédito",
             TD: "Tarjetas de Débito",
@@ -59,6 +59,7 @@ const MediosPagoList = () => {
           };
           groupKey = tipoNames[medio.tipo] || medio.tipo || "Sin tipo";
           break;
+        }
         case "ente_emisor":
           groupKey = medio.ente_emisor || "Sin emisor";
           break;
@@ -99,6 +100,9 @@ const MediosPagoList = () => {
 
   // Apply grouping to filtered medios de pago
   const groupedMediosPago = groupMediosPago(filteredMediosPago, groupBy);
+
+  // Calculate total pages based on filtered medios de pago
+  const totalPages = Math.ceil(filteredMediosPago.length / perPage);
 
   // Calculate stats
   const totalMediosPago = mediosPago.length;
@@ -266,14 +270,16 @@ const MediosPagoList = () => {
                     <div className="p-6">
                       {groupMedios.length > 0 ? (
                         <div className="space-y-4">
-                          {groupMedios.map((medio) => (
-                            <MediosPago
-                              key={medio.id}
-                              medioPago={medio}
-                              onDelete={() => deleteMedioPago(medio.id)}
-                              onEdit={() => handleEditMedioPago(medio.id)}
-                            />
-                          ))}
+                          {groupMedios
+                            .slice((page - 1) * perPage, page * perPage)
+                            .map((medio) => (
+                              <MediosPago
+                                key={medio.id}
+                                medioPago={medio}
+                                onDelete={() => deleteMedioPago(medio.id)}
+                                onEdit={() => handleEditMedioPago(medio.id)}
+                              />
+                            ))}
                         </div>
                       ) : (
                         <div className="text-center py-10">
@@ -308,6 +314,29 @@ const MediosPagoList = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && filteredMediosPago.length > 0 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <button
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1}
+              className="px-3 py-1 rounded-lg border disabled:opacity-50 hover:bg-gray-50 transition-colors"
+            >
+              ◀
+            </button>
+            <span className="text-gray-600">
+              Página {page} de {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+              disabled={page === totalPages}
+              className="px-3 py-1 rounded-lg border disabled:opacity-50 hover:bg-gray-50 transition-colors"
+            >
+              ▶
+            </button>
           </div>
         )}
       </div>

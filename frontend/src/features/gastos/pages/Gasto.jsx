@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import GastoForm from "../components/GastoForm"; 
 import api from "../../../api"; 
 import { ACCESS_TOKEN } from "../../../constants";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { LayoutWrapper } from "../../../shared/components/layout";
 import { useUserData } from "../../../hooks/useUserData";
 import { componentStyles } from "../../../utils/colorSystem";
 

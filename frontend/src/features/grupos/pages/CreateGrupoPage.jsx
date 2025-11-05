@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import GrupoForm from "../components/GrupoForm";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { LayoutWrapper } from "../../../shared/components/layout";
 import { useUserData } from "../../../hooks/useUserData";
 
 const CreateGrupoPage = () => {

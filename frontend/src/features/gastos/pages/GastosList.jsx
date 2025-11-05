@@ -3,17 +3,17 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../api";
 import Gasto from "../components/Gasto";
 import GastoDetailModal from "../components/GastoDetailModal";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { LayoutWrapper } from "../../../shared/components/layout";
+import { Toast } from "../../../shared/components/ui";
 import { useUserData } from "../../../hooks/useUserData";
+import { useGastos } from "../../../hooks/useGastos";
 import delayedNavigate from "../../../hooks/delayedNavigate";
 import { getButtonClass } from "../../../utils/colorSystem";
-import Toast from "../../../shared/components/Toast";
 
 const GastosList = () => {
-  const [gastos, setGastos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { gastos, loading, fetchGastos } = useGastos();
   const [search, setSearch] = useState("");
-  const [orderBy, setOrderBy] = useState(null); // Default: newest first
+  const [orderBy, setOrderBy] = useState(); // Default: newest first
   const [groupBy, setGroupBy] = useState(null);
   const [page, setPage] = useState(1);
   const [toast, setToast] = useState(null);
@@ -27,27 +27,6 @@ const GastosList = () => {
   }, []);
 
   const perPage = 6;
-
-  const getGastos = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await api.get("/api/gastos/");
-      setGastos(response.data);
-    } catch (error) {
-      console.error("Error fetching gastos:", error);
-      if (error.response?.status === 401) {
-        alert("Authentication error. Please log in again.");
-        localStorage.clear();
-        window.location.href = "/login";
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    getGastos();
-  }, [getGastos]);
 
   // Memoized filtering and sorting logic
   const filteredGastos = useMemo(() => {
@@ -163,7 +142,7 @@ const GastosList = () => {
     const paid = {};
 
     gastos.forEach((gasto) => {
-      const currency = gasto.moneda || "ARS";
+      const currency = gasto.moneda;
       const montoTotal = parseFloat(gasto.monto);
 
       // Initialize currency if not exists
@@ -202,14 +181,15 @@ const GastosList = () => {
       .sort(); // Sort currencies alphabetically
 
     return currencies.map((currency) => (
-      <p key={currency}>
+      <span key={currency}>
         $
         {amountsByCurrency[currency].toLocaleString("es-AR", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}{" "}
         {currency}
-      </p>
+        <br />
+      </span>
     ));
   }, []);
 
@@ -225,7 +205,7 @@ const GastosList = () => {
               delete newCache[id];
               return newCache;
             });
-            getGastos(); // Refresh the list
+            fetchGastos(true); // Force refresh the list
             alert("Gasto eliminado exitosamente.");
           }
         } catch (error) {
@@ -234,7 +214,7 @@ const GastosList = () => {
         }
       }
     },
-    [getGastos]
+    [fetchGastos]
   );
 
   const handleShowDetail = useCallback(
@@ -289,7 +269,7 @@ const GastosList = () => {
             delete newCache[id];
             return newCache;
           });
-          getGastos(); // Refresh the list
+          fetchGastos(true); // Force refresh the list
           showToast(
             `Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`,
             "success"
@@ -303,7 +283,7 @@ const GastosList = () => {
         );
       }
     },
-    [gastos, showToast, getGastos]
+    [gastos, showToast, fetchGastos]
   );
 
   const handlePayCuotaFromModal = useCallback(
@@ -333,7 +313,7 @@ const GastosList = () => {
             delete newCache[id];
             return newCache;
           });
-          getGastos(); // Refresh the list
+          fetchGastos(true); // Force refresh the list
           showToast(
             `Cuota ${updatedGasto.pagos_realizados} de ${gasto.pagos_totales} pagada exitosamente.`,
             "success"
@@ -347,7 +327,7 @@ const GastosList = () => {
         );
       }
     },
-    [gastos, showToast, getGastos]
+    [gastos, showToast, fetchGastos]
   );
 
   const handleEditFromModal = useCallback(
@@ -460,17 +440,18 @@ const GastosList = () => {
     <LayoutWrapper user={user} onLogout={handleLogout}>
       <div className="space-y-6">
         {/* Header */}
-        <header className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Lista de Gastos</h1>
+        <header className="flex justify-center items-center relative">
+          <h1 className="text-2xl font-bold text-gray-800">Listado de Gastos</h1>
           <button
             onClick={() => delayedNavigate(navigate, "/gastos/add", 250)}
-            className={getButtonClass("formPrimary", "form")}
+            className={`${getButtonClass("formPrimary", "form")} absolute right-0`}
           >
             + Crear Nuevo Gasto
           </button>
         </header>
 
         {/* Métricas */}
+        {/* <h2 className="text-lg font-semibold text-gray-700 mb-4">Montos del mes</h2> */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white shadow rounded-xl p-4">
             <p className="text-sm text-gray-500">Total</p>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import GrupoList from "../components/GrupoList";
 import GrupoForm from "../components/GrupoForm";
 import GrupoDetail from "../components/GrupoDetail";
-import LayoutWrapper from "../../../shared/components/wrappers/LayoutWrapper";
+import { LayoutWrapper } from "../../../shared/components/layout";
 import { useUserData } from "../../../hooks/useUserData";
 
 const GruposPage = () => {
