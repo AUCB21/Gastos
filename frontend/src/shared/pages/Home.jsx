@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback, memo, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api"; 
-import { ACCESS_TOKEN } from "../../constants";
 import LayoutWrapper from "../components/wrappers/LayoutWrapper";
 import { useUserData } from "../../hooks/useUserData";
+import { useGastos } from "../../hooks/useGastos";
 import delayedNavigate from "../../hooks/delayedNavigate";
 import { formatLocalDate } from "../../utils/dateUtils";
 import { getButtonClass, getCardClass, getTextClass, colors } from "../../utils/colorSystem";
@@ -17,7 +17,7 @@ const RecentGastoItem = memo(({ gasto, onClick }) => {
     >
       <div className="flex-1">
         <p className={`font-semibold ${colors.text}`}>
-          ${gasto.monto} {gasto.moneda} - {gasto.vendedor}
+          {gasto.titulo || gasto.vendedor} - ${gasto.monto} {gasto.moneda}
         </p>
         <p className={`text-sm ${getTextClass('light')}`}>
           {formatLocalDate(gasto.fecha_gasto)} • {gasto.categoria?.name || gasto.categoria}
@@ -30,42 +30,34 @@ const RecentGastoItem = memo(({ gasto, onClick }) => {
 RecentGastoItem.displayName = 'RecentGastoItem';
 
 const Home = () => {
-  const [stats, setStats] = useState({
-    totalGastos: 0,
-    totalMediosPago: 0,
-    gastosRecientes: []
-  });
+  const { gastos, loading: gastosLoading } = useGastos();
+  const [mediosPagoCount, setMediosPagoCount] = useState(0);
+  const [mediosPagoLoading, setMediosPagoLoading] = useState(true);
   const { user } = useUserData();
   const navigate = useNavigate();
 
-  const loadDashboardData = useCallback(async () => {
-    try {
-      const [gastosResponse, mediosPagoResponse] = await Promise.all([
-        api.get("/api/gastos/"),
-        api.get("/api/medios-pago/")
-      ]);
+  // Memoize recent gastos
+  const gastosRecientes = useMemo(() => {
+    return [...gastos]
+      .sort((a, b) => new Date(b.fecha_gasto) - new Date(a.fecha_gasto))
+      .slice(0, 5);
+  }, [gastos]);
 
-      const gastos = gastosResponse.data;
-      const mediosPago = mediosPagoResponse.data;
-
-      // Get recent gastos (last 5)
-      const gastosRecientes = gastos
-        .sort((a, b) => new Date(b.fecha_gasto) - new Date(a.fecha_gasto))
-        .slice(0, 5);
-
-      setStats({
-        totalGastos: gastos.length,
-        totalMediosPago: mediosPago.length,
-        gastosRecientes
-      });
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
-    }
-  }, []);
-
+  // Load medios de pago count
   useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
+    const loadMediosPago = async () => {
+      try {
+        setMediosPagoLoading(true);
+        const response = await api.get("/api/medios-pago/");
+        setMediosPagoCount(response.data.length);
+      } catch (error) {
+        console.error("Error loading medios de pago:", error);
+      } finally {
+        setMediosPagoLoading(false);
+      }
+    };
+    loadMediosPago();
+  }, []);
 
   const handleLogout = useCallback(() => {
     navigate("/logout");
@@ -114,7 +106,9 @@ const Home = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className={`text-lg font-semibold ${colors.text}`}>Tus Gastos</h3>
-                <p className={`text-3xl font-bold ${colors.primary.text}`}>{stats.totalGastos}</p>
+                <p className={`text-3xl font-bold ${colors.primary.text}`}>
+                  {gastosLoading ? "..." : gastos.length}
+                </p>
               </div>
               <div className={`${colors.primary.bgLight} p-3 rounded-full`}>
                 <svg className={`w-8 h-8 ${colors.primary.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +125,9 @@ const Home = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className={`text-lg font-semibold ${colors.text}`}>Tus Medios de Pago</h3>
-                <p className={`text-3xl font-bold ${colors.success.text}`}>{stats.totalMediosPago}</p>
+                <p className={`text-3xl font-bold ${colors.success.text}`}>
+                  {mediosPagoLoading ? "..." : mediosPagoCount}
+                </p>
               </div>
               <div className={`${colors.success.bgLight} p-3 rounded-full`}>
                 <svg className={`w-8 h-8 ${colors.success.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,11 +185,11 @@ const Home = () => {
         </div>
 
         {/* Recent Gastos */}
-        {stats.gastosRecientes.length > 0 && (
+        {gastosRecientes.length > 0 && (
           <div className={getCardClass('default')}>
             <h2 className={`text-2xl font-bold ${colors.text} mb-6`}>Gastos Recientes</h2>
             <div className="space-y-3">
-              {stats.gastosRecientes.map((gasto) => (
+              {gastosRecientes.map((gasto) => (
                 <RecentGastoItem 
                   key={gasto.id} 
                   gasto={gasto} 

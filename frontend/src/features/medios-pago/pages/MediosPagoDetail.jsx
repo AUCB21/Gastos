@@ -5,12 +5,14 @@ import api from '../../../api';
 import LayoutWrapper from '../../../shared/components/wrappers/LayoutWrapper';
 import { EditModal } from '../../../shared/components/Modal';
 import { useUserData } from '../../../hooks/useUserData';
+import { useGastos } from '../../../hooks/useGastos';
 import delayedNavigate from '../../../hooks/delayedNavigate';
 
 const MediosPagoDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUserData();
+  const { gastos, loading: gastosLoading } = useGastos();
   const [medioPago, setMedioPago] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -64,7 +66,30 @@ const MediosPagoDetail = () => {
     return tipos[tipo] || tipo;
   };
 
-  if (loading) {
+  // Calculate usage statistics from gastos
+  const usageStats = React.useMemo(() => {
+    // Filter gastos that use this medio de pago
+    const gastosUsingThisMedio = gastos.filter(
+      gasto => gasto.medio_pago === parseInt(id)
+    );
+
+    // Count gastos
+    const gastosCount = gastosUsingThisMedio.length;
+
+    // Calculate total amount paid using this medio de pago
+    // montoPagado = monto * (pagos_realizados / pagos_totales)
+    const totalAmount = gastosUsingThisMedio.reduce((sum, gasto) => {
+      const montoPagado = gasto.monto * (gasto.pagos_realizados / gasto.pagos_totales);
+      return sum + montoPagado;
+    }, 0);
+
+    return {
+      gastosCount,
+      totalAmount: totalAmount.toFixed(2)
+    };
+  }, [gastos, id]);
+
+  if (loading || gastosLoading) {
     return (
       <LayoutWrapper user={user} onLogout={handleLogout} showSidebar={false} pageTitle="Cargando Medio de Pago">
         <div className="max-w-2xl mx-auto">
@@ -180,13 +205,13 @@ const MediosPagoDetail = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-sm text-gray-500">Gastos Asociados</p>
               <p className="text-2xl font-bold text-gray-800">
-                {medioPago.gastos_count || 0}
+                {usageStats.gastosCount}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-500">Monto Total</p>
+              <p className="text-sm text-gray-500">Monto Total Pagado</p>
               <p className="text-2xl font-bold text-gray-800">
-                ${medioPago.total_amount || '0.00'}
+                ${parseFloat(usageStats.totalAmount).toLocaleString()}
               </p>
             </div>
           </div>
