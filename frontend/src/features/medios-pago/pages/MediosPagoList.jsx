@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "@/api";
+import api from "../../../api";
 import MediosPago from "../components/MediosPago";
-import { LayoutWrapper } from "@/shared/components/layout";
-import { useUserData } from "@/hooks/useUserData";
-import delayedNavigate from "@/hooks/delayedNavigate";
+import { LayoutWrapper } from "../../../shared/components/layout";
+import { useUserData } from "../../../hooks/useUserData";
+import delayedNavigate from "../../../hooks/delayedNavigate";
 
 const MediosPagoList = () => {
   const [mediosPago, setMediosPago] = useState([]);

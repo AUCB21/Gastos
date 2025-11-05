@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CreditCard, Building, Tag, MessageSquare, Edit, ArrowLeft } from 'lucide-react';
-import api from '@/api';
-import { LayoutWrapper } from '@/shared/components/layout';
-import { EditModal } from '@/shared/components/ui';
-import { useUserData } from '@/hooks/useUserData';
-import { useGastos } from '@/hooks/useGastos';
-import delayedNavigate from '@/hooks/delayedNavigate';
+import api from '../../../api';
+import { LayoutWrapper } from '../../../shared/components/layout';
+import { EditModal } from '../../../shared/components/ui';
+import { useUserData } from '../../../hooks/useUserData';
+import { useGastos } from '../../../hooks/useGastos';
+import delayedNavigate from '../../../hooks/delayedNavigate';
 
 const MediosPagoDetail = () => {
   const { id } = useParams();
